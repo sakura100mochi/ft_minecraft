@@ -1,0 +1,65 @@
+package utils.math;
+
+import settings.SystemSettings;
+
+public final class Calc {
+	private Calc() {}
+
+	public static int getIndex(int local_x, int local_y, int local_z) throws Exception {
+		if (local_x < 0 || local_x >= SystemSettings.CHUNK_SIZE || local_y < 0 || local_y >= 10000 || local_z < 0 || local_z >= SystemSettings.CHUNK_SIZE) {
+			throw new IllegalArgumentException("utils.math.Calc.getIndex: local_x, local_y, or local_z is out of bounds");
+		}
+		return local_x + (local_z * SystemSettings.CHUNK_SIZE) + (local_y * SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE);
+	}
+
+	public static int EuclideanDistance(int x1, int y1, int z1, int x2, int y2, int z2) {
+		return (int)Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
+	}
+
+	public static int EuclideanDistance(int x1, int z1, int x2, int z2) {
+		return (int)Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(z1 - z2, 2));
+	}
+
+	public static int distance(int x1, int z1, int x2, int z2) {
+		int dx = x2 - x1;
+		int dz = z2 - z1;
+		return (int)Math.hypot(dx, dz);
+	}
+
+	public static int getChunkIndex(int world_block_pos) {
+		return Math.floorDiv(world_block_pos, SystemSettings.CHUNK_SIZE);
+	}
+
+	public static int getChunkIndex(float world_block_pos) {
+		return Math.floorDiv(getIntBlockPos(world_block_pos), SystemSettings.CHUNK_SIZE);
+	}
+
+	public static int getIntBlockPos(float block_pos) {
+		return (int)Math.floor(block_pos);
+	}
+
+	public static int getIntBlockPos(double block_pos) {
+		return (int)Math.floor(block_pos);
+	}
+
+	public static double lerp(double a, double b, double t) {
+		return a + t * (b - a);
+	}
+
+	public static long getHashFromCoordinate(double x, double y, double z) {
+		long seed = ((long)x * 3129871) ^ (long)z * 116129781 ^ (long)y;
+		seed = seed * seed * 42317861 + seed * 11;
+		return seed >> 16;
+	}
+
+	public static long longFromBytes(byte a, byte b, byte c, byte d, byte e, byte f, byte g, byte h){
+		return (long)a << (long)56
+			| (long)b << (long)48
+			| (long)c << (long)40
+			| (long)d << (long)32
+			| (long)e << (long)24
+			| (long)f << (long)16
+			| (long)g << (long)8
+			| (long)h;
+	}
+}
