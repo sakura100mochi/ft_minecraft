@@ -16,8 +16,24 @@ make mac
 ```
 
 ## How to play
-*Key Bind*
+### *Key Bind*
+
+**ESCAPE** exit the game
 
 **W** move forward
+
 **A** left
-**S**
+
+**S** move backward
+
+**D** right
+
+**SPACE** jump
+
+**SHIFT** sneeze
+
+**Q** sprint(holding)
+
+**F3** change game mode
+
+**F5** change perspective
