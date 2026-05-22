@@ -57,4 +57,9 @@ public final class TerrainMeshManager implements IMeshManager {
 			this.meshCaches.put(key, newMesh);
 		}
 	}
+
+	public boolean hasMesh(int chunk_x, int chunk_z) {
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.meshCaches.containsKey(key);
+	}
 }

@@ -48,6 +48,12 @@ public final class RenderChunkDecider {
 			}
 		}
 		setChunks(playerChunkX, playerChunkZ, renderDistance);
+		long current_key = Position2D.toLong(playerChunkX, playerChunkZ);
+		if (this.currentChunks.contains(current_key) == false && this.data.allMeshes.terrainMesh.hasMesh(playerChunkX, playerChunkZ) == false) {
+			this.renderChunks.removeIf(v -> v.chunk_x == playerChunkX && v.chunk_y == playerChunkZ);
+			this.worldgenThread.setRenderChunk(current_key);
+			this.currentChunks.add(current_key);
+		}
 		while (!this.renderChunks.isEmpty() && this.worldgenThread.getRenderChunkSize() <= 1) {
 			ComparableVector2i renderChunk = this.renderChunks.poll();
 			if (renderChunk != null) {

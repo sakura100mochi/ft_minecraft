@@ -36,7 +36,7 @@ public final class Player {
 		if (this.isRunning == true) {
 			return true;
 		} else {
-			if (this.data.worldgenThread.isChunkGenerated(Calc.getChunkIndex(this.position[0]), Calc.getChunkIndex(this.position[2])) == true) {
+			if (this.data.allMeshes.terrainMesh.hasMesh(Calc.getChunkIndex(this.position[0]), Calc.getChunkIndex(this.position[2])) == true) {
 				this.isRunning = true;
 				this.data.physics_engine.playerMotion.setPosition(this.position[0], this.position[1], this.position[2]);
 				return true;

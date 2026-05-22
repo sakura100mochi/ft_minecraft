@@ -214,11 +214,6 @@ public final class WorldgenThread extends Thread {
 		return this.paletteCache.get(key);
 	}
 
-	public boolean isChunkGenerated(int chunk_x, int chunk_z) {
-		long key = Position2D.toLong(chunk_x, chunk_z);
-		return this.protoChunksCache.containsKey(key);
-	}
-
 	public boolean isAir(int x, int y, int z) throws Exception {
 		if (y < this.data.parser.worldgen.overworld.min_y || y >= this.data.parser.worldgen.overworld.min_y + this.data.parser.worldgen.overworld.terrainHeight) {
 			return true;
