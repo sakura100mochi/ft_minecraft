@@ -3,7 +3,7 @@ SRC_PATH	:= src/
 CLASS_PATH	:= class/
 BIN_PATH	:= bin/
 LIB_PATH	:= lib/jar/
-NATIVES_PATH=  lib/natives-linux/
+NATIVES_PATH=  lib/natives_linux_x64/
 SRC_FILES	:= $(shell find $(SRC_PATH) -name "*.java")
 CLASS_FILES	:= $(SRC_FILES:$(SRC_PATH)%.java=%.class)
 RUN_FILES	:= Main
@@ -15,9 +15,40 @@ JAVA		:= java
 JAVAC		:= javac
 JFLAGS		:= -cp $(JARS_CP)
 RUNFLAGS	= -Xms4G -Xmx4G
-ifdef MAC
-	NATIVES_PATH= lib/natives-macos/
+
+ifdef LINUX_ARM32
+	NATIVES_PATH= lib/natives_linux_arm32/
+endif
+ifdef LINUX_ARM64
+	NATIVES_PATH= lib/natives_linux_arm64/
+endif
+ifdef LINUX_MIPS64
+	NATIVES_PATH= lib/natives_linux_mips64/
+endif
+ifdef LINUX_PPC64LE
+	NATIVES_PATH= lib/natives_linux_ppc64le/
+endif
+ifdef LINUX_RISCV64
+	NATIVES_PATH= lib/natives_linux_riscv64/
+endif
+ifdef LINUX_X64
+endif
+ifdef MAC_ARM64
+	NATIVES_PATH= lib/natives_macos_arm64/
 	RUNFLAGS	+= -XstartOnFirstThread
+endif
+ifdef MAC_X64
+	NATIVES_PATH= lib/natives_macos_x64/
+	RUNFLAGS	+= -XstartOnFirstThread
+endif
+ifdef WINDOWS_ARM64
+	NATIVES_PATH= lib/natives_windows_arm64/
+endif
+ifdef WINDOWS_X64
+	NATIVES_PATH= lib/natives_windows_x64/
+endif
+ifdef WINDOWS_X86
+	NATIVES_PATH= lib/natives_windows_x86/
 endif
 
 
@@ -63,6 +94,46 @@ fclean:	clean
 re:	fclean all
 .PHONY:	re
 
-mac:
-	@ $(MAKE) MAC=1
-.PHONY:	mac
+linux_arm32:
+	@ $(MAKE) LINUX_ARM32=1
+.PHONY: linux_arm32
+
+linux_arm64:
+	@ $(MAKE) LINUX_ARM64=1
+.PHONY: linux_arm64
+
+linux_mips64:
+	@ $(MAKE) LINUX_MIPS64=1
+.PHONY: linux_mips64
+
+linux_ppc64le:
+	@ $(MAKE) LINUX_PPC64LE=1
+.PHONY: linux_ppc64le
+
+linux_riscv64:
+	@ $(MAKE) LINUX_RISCV64=1
+.PHONY: linux_riscv64
+
+linux_x64:
+	@ $(MAKE) LINUX_X64=1
+.PHONY: linux_x64
+
+mac_arm64:
+	@ $(MAKE) MAC_ARM64=1
+.PHONY:	mac_arm64
+
+mac_x64:
+	@ $(MAKE) MAC_X64=1
+.PHONY:	mac_x64
+
+windows_arm64:
+	@ $(MAKE) WINDOWS_ARM64=1
+.PHONY:	windows_arm64
+
+windows_x64:
+	@ $(MAKE) WINDOWS_X64=1
+.PHONY:	windows_x64
+
+windows_x86:
+	@ $(MAKE) WINDOWS_X86=1
+.PHONY:	windows_x86
