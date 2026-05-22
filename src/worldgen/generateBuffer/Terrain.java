@@ -1,7 +1,6 @@
 package worldgen.generateBuffer;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
 
@@ -11,8 +10,6 @@ import models.mesh.terrain.TerrainMesh;
 import settings.SystemSettings;
 import texture.UV;
 import utils.math.Calc;
-import utils.registry.BitCompression;
-import utils.registry.Palette;
 import utils.registry.Registry;
 import worldgen.WorldgenThread;
 
@@ -42,14 +39,16 @@ public final class Terrain {
 		this.emptyChunk = new long[this.LONGS_PER_CHUNK];
 	}
 	
-	public ByteBuffer generateBuffer(int chunk_x, int chunk_z, long[] protoChunk, Map<Integer, Integer> palette) throws Exception {
-		int[] registries = BitCompression.decompress(protoChunk, Palette.reversePalette(palette));
+	public ByteBuffer generateBuffer(int chunk_x, int chunk_z, int[] registries) throws Exception {
 		long[] terrain = terrainOrNot(registries);
 		long[] culled = addCulling(chunk_x, chunk_z, terrain);
 		return makeBuffer(chunk_x, chunk_z, culled, registries);
 	}
 
 	private long[] terrainOrNot(int[] registries) {
+		if (registries == null) {
+			return this.emptyChunk;
+		}
 		long[] terrain = new long[this.LONGS_PER_CHUNK];
 		for (int i = 0; i < terrain.length; i++) {
 			long current = 0L;
@@ -129,38 +128,10 @@ public final class Terrain {
 		long extractX_0  = 0x0001000100010001L;
 		long extractX_15 = 0x8000800080008000L;
 
-		long[] chunkEast;
-		long[] protoChunkEast  = this.worldgenThread.getProtoChunkOrNull(chunk_x + 1, chunk_z);
-		Map<Integer, Integer> paletteEast = this.worldgenThread.getPaletteOrNull(chunk_x + 1, chunk_z);
-		if (protoChunkEast != null && paletteEast != null) {
-			chunkEast = terrainOrNot(BitCompression.decompress(protoChunkEast, Palette.reversePalette(paletteEast)));
-		} else {
-			chunkEast = this.emptyChunk;
-		}
-		long[] chunkWest;
-		long[] protoChunkWest  = this.worldgenThread.getProtoChunkOrNull(chunk_x - 1, chunk_z);
-		Map<Integer, Integer> paletteWest = this.worldgenThread.getPaletteOrNull(chunk_x - 1, chunk_z);
-		if (protoChunkWest != null && paletteWest != null) {
-			chunkWest = terrainOrNot(BitCompression.decompress(protoChunkWest, Palette.reversePalette(paletteWest)));
-		} else {
-			chunkWest = this.emptyChunk;
-		}
-		long[] chunkSouth;
-		long[] protoChunkSouth = this.worldgenThread.getProtoChunkOrNull(chunk_x, chunk_z + 1);
-		Map<Integer, Integer> paletteSouth = this.worldgenThread.getPaletteOrNull(chunk_x, chunk_z + 1);
-		if (protoChunkSouth != null && paletteSouth != null) {
-			chunkSouth = terrainOrNot(BitCompression.decompress(protoChunkSouth, Palette.reversePalette(paletteSouth)));
-		} else {
-			chunkSouth = this.emptyChunk;
-		}
-		long[] chunkNorth;
-		long[] protoChunkNorth = this.worldgenThread.getProtoChunkOrNull(chunk_x, chunk_z - 1);
-		Map<Integer, Integer> paletteNorth = this.worldgenThread.getPaletteOrNull(chunk_x, chunk_z - 1);
-		if (protoChunkNorth != null && paletteNorth != null) {
-			chunkNorth = terrainOrNot(BitCompression.decompress(protoChunkNorth, Palette.reversePalette(paletteNorth)));
-		} else {
-			chunkNorth = this.emptyChunk;
-		}
+		long[] chunkEast = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x + 1, chunk_z));
+		long[] chunkWest = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x - 1, chunk_z));
+		long[] chunkSouth = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z + 1));
+		long[] chunkNorth = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z - 1));
 		for (int i = 0; i < terrain.length; i++) {
 			long current = terrain[i];
 			long nextZ = (i % 4 < 3) ? terrain[i + 1] : chunkSouth[i - 3];
