@@ -1,34 +1,34 @@
 package worldgen.overworld;
 
 import data.Data;
-//import worldgen.overworld.structure_set.Structure_set;
+import worldgen.overworld.structure_set.Structure_set;
 import worldgen.overworld.surface.Surface;
 import worldgen.overworld.noiseRouter.NoiseRouter;
 import worldgen.overworld.biome.Biome;
 import worldgen.overworld.terrain.BaseTerrain;
 import worldgen.overworld.terrain.BaseLiquid;
 import worldgen.overworld.height_map.Height_map;
-//import worldgen.overworld.carvers.Carvers;
+import worldgen.overworld.carvers.Carvers;
 
 public final class Overworld {
-	//public final Structure_set	structure_set;
+	public final Structure_set	structure_set;
 	public final NoiseRouter	noise_router;
 	public final Biome			biome;
 	public final BaseTerrain	base_terrain;
 	public final Height_map		height_map;
 	public final BaseLiquid		base_liquid;
 	public final Surface		surface;
-	//public final Carvers		carvers;
+	public final Carvers		carvers;
 
 	public Overworld(Data data) throws Exception {
-		//this.structure_set = new Structure_set(data);
+		this.structure_set = new Structure_set(data);
 		this.noise_router = new NoiseRouter(data);
 		this.biome = new Biome(data, this.noise_router);
 		this.base_terrain = new BaseTerrain(data, this.noise_router);
 		this.height_map = new Height_map(data);
 		this.base_liquid = new BaseLiquid(data);
 		this.surface = new Surface(data, this.biome);
-		//this.carvers = new Carvers(data);
+		this.carvers = new Carvers(data);
 		// features and structures
 		// final height map
 		// initial light
