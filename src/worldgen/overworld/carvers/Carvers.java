@@ -73,7 +73,6 @@ public final class Carvers {
 			return;
 		}
 
-		System.out.println("Generating canyon at chunk (" + chunk_x + ", " + chunk_z + ") with probability " + probability); // --- IGNORE ---
 		int y = getHeightProvider(json.getJSONObject("y"), iRandom);
 		int lava_level = getVerticalAnchor(json.getJSONObject("lava_level"));
 		List<Integer> replaceable = getReplaceableBlocks(json.getString("replaceable"));
