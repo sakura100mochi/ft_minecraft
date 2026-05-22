@@ -14,7 +14,7 @@ JAVA_RUN_CP	:= $(CLASS_PATH):$(JARS_CP)
 JAVA		:= java
 JAVAC		:= javac
 JFLAGS		:= -cp $(JARS_CP)
-RUNFLAGS	= -Xms4G -Xmx4G
+RUNFLAGS	= -Xms4G -Xmx4G --enable-native-access=ALL-UNNAMED
 
 ifdef LINUX_ARM32
 	NATIVES_PATH= lib/natives_linux_arm32/
