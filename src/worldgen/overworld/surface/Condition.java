@@ -86,20 +86,20 @@ public final class Condition {
 				return (x, y, z) -> {
 					int chunk_x = x >> 4;
 					int chunk_z = z >> 4;
-					int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z));
+					int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
 					int local_x = x & 15;
 					int local_z = z & 15;
 					int myHeight = height_map[local_x][local_z];
 					
 					int northZ = local_z - 1;
 					if (northZ < 0) {
-						height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z - 1, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z - 1));
+						height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z - 1, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z - 1), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
 						northZ += 16;
 					}
 					int northHeight = height_map[local_x][northZ];
 					int eastX = local_x + 1;
 					if (eastX >= 16) {
-						height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x + 1, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x + 1, chunk_z));
+						height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x + 1, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x + 1, chunk_z), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
 						eastX -= 16;
 					}
 					int eastHeight = height_map[eastX][local_z];
@@ -360,7 +360,7 @@ public final class Condition {
 		}
 		int chunk_x = x >> 4;
 		int chunk_z = z >> 4;
-		int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z));
+		int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
 		int local_x = x & 15;
 		int local_z = z & 15;
 		int terrainSurface = height_map[local_x][local_z];

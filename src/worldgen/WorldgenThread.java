@@ -30,6 +30,11 @@ public final class WorldgenThread extends Thread {
 	private final Map<Long, Map<Integer, Integer>>	paletteCache = new ConcurrentHashMap<>();
 	private final Map<Long, BitSet>					base_terrainCache = new ConcurrentHashMap<>();
 	private final Map<Long, int[][]>				WORLD_SURFACE_WG_Cache = new ConcurrentHashMap<>();
+	private final Map<Long, int[][]>				WORLD_SURFACE_Cache = new ConcurrentHashMap<>();
+	private final Map<Long, int[][]>				OCEAN_FLOOR_Cache = new ConcurrentHashMap<>();
+	private final Map<Long, int[][]>				OCEAN_FLOOR_WG_Cache = new ConcurrentHashMap<>();
+	private final Map<Long, int[][]>				MOTION_BLOCKING_Cache = new ConcurrentHashMap<>();
+	private final Map<Long, int[][]>				MOTION_BLOCKING_NO_LEAVES_Cache = new ConcurrentHashMap<>();
 	private final Map<Long, BitSet>					base_liquidCache = new ConcurrentHashMap<>();
 	private final Map<Long, int[]>					surfaceCache = new ConcurrentHashMap<>();
 	private final Map<String, Map<Long, BitSet>>	carverCache = new ConcurrentHashMap<>();
@@ -118,6 +123,7 @@ public final class WorldgenThread extends Thread {
 				if (distance > VideoSettings.getRender_distance()) {
 					it.remove();
 					WORLD_SURFACE_WG_Cache.remove(key);
+					OCEAN_FLOOR_WG_Cache.remove(key);
 					base_liquidCache.remove(key);
 					surfaceCache.remove(key);
 					carversComputed.remove(key);
@@ -135,6 +141,10 @@ public final class WorldgenThread extends Thread {
 				if (distance > VideoSettings.getRender_distance() * 2) {
 					it.remove();
 					paletteCache.remove(key);
+					WORLD_SURFACE_Cache.remove(key);
+					OCEAN_FLOOR_Cache.remove(key);
+					MOTION_BLOCKING_Cache.remove(key);
+					MOTION_BLOCKING_NO_LEAVES_Cache.remove(key);
 				}
 			}
 		}
@@ -151,22 +161,96 @@ public final class WorldgenThread extends Thread {
 		});
 	}
 
-	public int[][] getWORLD_SURFACE_WG(int chunk_x, int chunk_z, BitSet base_terrain) {
+	public int[][] getWORLD_SURFACE_WG(int chunk_x, int chunk_z, BitSet base_terrain, BitSet base_liquid) {
 		long key = Position2D.toLong(chunk_x, chunk_z);
 		return this.WORLD_SURFACE_WG_Cache.computeIfAbsent(key, k -> {
 			try {
-				return this.data.worldgen.overworld.height_map.generateWORLD_SURFACE_WG(base_terrain, chunk_x, chunk_z);
+				return this.data.worldgen.overworld.height_map.generateWORLD_SURFACE_WG(base_terrain, base_liquid, chunk_x, chunk_z);
 			} catch (Exception e) {
 				throw new RuntimeException("Error generating WORLD_SURFACE_WG for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
 			}
 		});
 	}
 
-	public BitSet getBaseLiquid(int chunk_x, int chunk_z, int[][] WORLD_SURFACE_WG) {
+	public int[][] getWORLD_SURFACE(int chunk_x, int chunk_z, int[] registries) {
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.WORLD_SURFACE_Cache.computeIfAbsent(key, k -> {
+			try {
+				return this.data.worldgen.overworld.height_map.generateWORLD_SURFACE(registries, chunk_x, chunk_z);
+			} catch (Exception e) {
+				throw new RuntimeException("Error generating WORLD_SURFACE for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
+			}
+		});
+	}
+
+	public int[][] getOCEAN_FLOOR(int chunk_x, int chunk_z, int[] registries) {
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.OCEAN_FLOOR_Cache.computeIfAbsent(key, k -> {
+			try {
+				return this.data.worldgen.overworld.height_map.generateOCEAN_FLOOR(registries, chunk_x, chunk_z);
+			} catch (Exception e) {
+				throw new RuntimeException("Error generating OCEAN_FLOOR for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
+			}
+		});
+	}
+
+	public int[][] getOCEAN_FLOOR_WG(int chunk_x, int chunk_z, BitSet base_terrain) {
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.OCEAN_FLOOR_WG_Cache.computeIfAbsent(key, k -> {
+			try {
+				return this.data.worldgen.overworld.height_map.generateOCEAN_FLOOR_WG(base_terrain, chunk_x, chunk_z);
+			} catch (Exception e) {
+				throw new RuntimeException("Error generating OCEAN_FLOOR_WG for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
+			}
+		});
+	}
+
+	public int[][] getMOTION_BLOCKING(int chunk_x, int chunk_z, int[] registries) {
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.MOTION_BLOCKING_Cache.computeIfAbsent(key, k -> {
+			try {
+				return this.data.worldgen.overworld.height_map.generateMOTION_BLOCKING(registries, chunk_x, chunk_z);
+			} catch (Exception e) {
+				throw new RuntimeException("Error generating MOTION_BLOCKING for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
+			}
+		});
+	}
+
+	public int[][] getMOTION_BLOCKING_NO_LEAVES(int chunk_x, int chunk_z, int[] registries) {
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.MOTION_BLOCKING_NO_LEAVES_Cache.computeIfAbsent(key, k -> {
+			try {
+				return this.data.worldgen.overworld.height_map.generateMOTION_BLOCKING_NO_LEAVES(registries, chunk_x, chunk_z);
+			} catch (Exception e) {
+				throw new RuntimeException("Error generating MOTION_BLOCKING_NO_LEAVES for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
+			}
+		});
+	}
+
+	public int[][] getHeightMap(int chunk_x, int chunk_z, String type) throws Exception {
+		switch (type) {
+			case "WORLD_SURFACE_WG":
+				return getWORLD_SURFACE_WG(chunk_x, chunk_z, getBaseTerrain(chunk_x, chunk_z), getBaseLiquid(chunk_x, chunk_z, getOCEAN_FLOOR_WG(chunk_x, chunk_z, getBaseTerrain(chunk_x, chunk_z))));
+			case "WORLD_SURFACE":
+				return getWORLD_SURFACE(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+			case "OCEAN_FLOOR_WG":
+				return getOCEAN_FLOOR_WG(chunk_x, chunk_z, getBaseTerrain(chunk_x, chunk_z));
+			case "OCEAN_FLOOR":
+				return getOCEAN_FLOOR(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+			case "MOTION_BLOCKING":
+				return getMOTION_BLOCKING(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+			case "MOTION_BLOCKING_NO_LEAVES":
+				return getMOTION_BLOCKING_NO_LEAVES(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+			default:
+				throw new RuntimeException("Unsupported heightmap type: " + type);
+		}
+	}
+
+	public BitSet getBaseLiquid(int chunk_x, int chunk_z, int[][] OCEAN_FLOOR_WG) {
 		long key = Position2D.toLong(chunk_x, chunk_z);
 		return this.base_liquidCache.computeIfAbsent(key, k -> {
 			try {
-				return this.data.worldgen.overworld.base_liquid.generateBaseLiquid(WORLD_SURFACE_WG, chunk_x, chunk_z);
+				return this.data.worldgen.overworld.base_liquid.generateBaseLiquid(OCEAN_FLOOR_WG, chunk_x, chunk_z);
 			} catch (Exception e) {
 				throw new RuntimeException("Error generating base liquid for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
 			}
@@ -190,6 +274,10 @@ public final class WorldgenThread extends Thread {
 		return map.computeIfAbsent(key, value -> new BitSet());
 	}
 
+	public Map<String, Map<Long, BitSet>> getAllCarvers() {
+		return this.carverCache;
+	}
+
 	private int[] getRegistries(int chunk_x, int chunk_z) throws Exception {
 		for (int x = chunk_x - 7; x <= chunk_x + 7; x++) {
 			for (int z = chunk_z - 7; z <= chunk_z + 7; z++) {
@@ -207,11 +295,12 @@ public final class WorldgenThread extends Thread {
 				Map<Integer, Integer> current_palette = this.paletteCache.get(current_key);
 				if (current_registries == null && (current_protoChunk == null || current_palette == null)) {
 					BitSet base_terrain = getBaseTerrain(x, z);
-					int[][] WORLD_SURFACE_WG = getWORLD_SURFACE_WG(x, z, base_terrain);
-					BitSet base_liquid = getBaseLiquid(x, z, WORLD_SURFACE_WG);
+					int[][] OCEAN_FLOOR_WG = getOCEAN_FLOOR_WG(x, z, base_terrain);
+					BitSet base_liquid = getBaseLiquid(x, z, OCEAN_FLOOR_WG);
 					int[] surface = getSurface(x, z, base_terrain, base_liquid);
 					int[] registries = this.data.worldgen.overworld.carvers.applyCarvers(surface, x, z);
 					this.registriesCache.put(current_key, registries);
+					this.data.worldgen.overworld.features.generateFeatures(chunk_x, chunk_z);
 					current_palette = Palette.palette(registries);
 					this.paletteCache.put(current_key, current_palette);
 					current_protoChunk = BitCompression.compress(registries, current_palette);
@@ -253,6 +342,10 @@ public final class WorldgenThread extends Thread {
 		return registries[index] == Registry.getId("minecraft:air");
 	}
 
+	public boolean isAir(int blockId) {
+		return blockId == Registry.getId("minecraft:air");
+	}
+
 	public boolean isWater(int x, int y, int z) throws Exception {
 		if (y < this.data.parser.worldgen.overworld.min_y || y >= this.data.parser.worldgen.overworld.min_y + this.data.parser.worldgen.overworld.terrainHeight) {
 			return false;
@@ -268,5 +361,52 @@ public final class WorldgenThread extends Thread {
 		int localZ = z & 15;
 		int index = Calc.getIndex(localX, localY, localZ);
 		return registries[index] == Registry.getId("minecraft:water");
+	}
+
+	public boolean isWater(int blockId) {
+		return blockId == Registry.getId("minecraft:water");
+	}
+
+	public boolean isLava(int x, int y, int z) throws Exception {
+		if (y < this.data.parser.worldgen.overworld.min_y || y >= this.data.parser.worldgen.overworld.min_y + this.data.parser.worldgen.overworld.terrainHeight) {
+			return false;
+		}
+		int chunk_x = x >> 4;
+		int chunk_z = z >> 4;
+		int[] registries = getRegistriesOrNull(chunk_x, chunk_z);
+		if (registries == null) {
+			return false;
+		}
+		int localX = x & 15;
+		int localY = y - this.data.parser.worldgen.overworld.min_y;
+		int localZ = z & 15;
+		int index = Calc.getIndex(localX, localY, localZ);
+		return registries[index] == Registry.getId("minecraft:lava");
+	}
+
+	public boolean isLava(int blockId) {
+		return blockId == Registry.getId("minecraft:lava");
+	}
+
+	public boolean isSolid(int x, int y, int z) throws Exception {
+		int blockId = getBlockRegistryId(x, y, z);
+		return isAir(blockId) == false && isWater(blockId) == false && isLava(blockId) == false;
+	}
+
+	public int getBlockRegistryId(int x, int y, int z) throws Exception {
+		if (y < this.data.parser.worldgen.overworld.min_y || y >= this.data.parser.worldgen.overworld.min_y + this.data.parser.worldgen.overworld.terrainHeight) {
+			return Registry.getId("minecraft:air");
+		}
+		int chunk_x = x >> 4;
+		int chunk_z = z >> 4;
+		int[] registries = getRegistriesOrNull(chunk_x, chunk_z);
+		if (registries == null) {
+			return Registry.getId("minecraft:air");
+		}
+		int localX = x & 15;
+		int localY = y - this.data.parser.worldgen.overworld.min_y;
+		int localZ = z & 15;
+		int index = Calc.getIndex(localX, localY, localZ);
+		return registries[index];
 	}
 }
