@@ -9,6 +9,7 @@ import worldgen.overworld.terrain.BaseTerrain;
 import worldgen.overworld.terrain.BaseLiquid;
 import worldgen.overworld.height_map.Height_map;
 import worldgen.overworld.carvers.Carvers;
+import worldgen.overworld.features.Features;
 
 public final class Overworld {
 	public final Structure_set	structure_set;
@@ -19,6 +20,7 @@ public final class Overworld {
 	public final BaseLiquid		base_liquid;
 	public final Surface		surface;
 	public final Carvers		carvers;
+	public final Features		features;
 
 	public Overworld(Data data) throws Exception {
 		this.structure_set = new Structure_set(data);
@@ -29,6 +31,7 @@ public final class Overworld {
 		this.base_liquid = new BaseLiquid(data);
 		this.surface = new Surface(data, this.biome);
 		this.carvers = new Carvers(data);
+		this.features = new Features(data, this.biome);
 		// features and structures
 		// final height map
 		// initial light
