@@ -43,6 +43,8 @@ public final class Carvers {
 			for (int i = cave.nextSetBit(0); i >= 0; i = cave.nextSetBit(i + 1)) {
 				if (this.isReplaceable(registries[i], replaceable_blocks) == true) {
 					registries[i] = this.airId;
+				} else {
+					cave.clear(i);
 				}
 			}
 		}
@@ -103,7 +105,7 @@ public final class Carvers {
 		} else if (type.equals("minecraft:trapezoid")) {
 			int min_inclusive = getVerticalAnchor(json.getJSONObject("min_inclusive"));
 			int max_inclusive = getVerticalAnchor(json.getJSONObject("max_inclusive"));
-			int plateau = json.getInt("plateau");
+			int plateau = json.optInt("plateau", 0);
 			return (int)random.nextTrapezoid(min_inclusive, max_inclusive, plateau);
 		} else if (type.equals("minecraft:weighted_list")) {
 			JSONArray distribution = json.getJSONArray("distribution");
