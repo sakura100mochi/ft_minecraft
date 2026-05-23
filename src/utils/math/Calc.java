@@ -9,7 +9,31 @@ public final class Calc {
 		if (local_x < 0 || local_x >= SystemSettings.CHUNK_SIZE || local_y < 0 || local_y >= 10000 || local_z < 0 || local_z >= SystemSettings.CHUNK_SIZE) {
 			throw new IllegalArgumentException("utils.math.Calc.getIndex: local_x, local_y, or local_z is out of bounds");
 		}
-		return local_x + (local_z * SystemSettings.CHUNK_SIZE) + (local_y * SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE);
+		return local_x | (local_z << 4) | (local_y << 8);
+	}
+
+	public static int getLocalXFromIndex(int index) {
+		return index & 15;
+	}
+
+	public static int getLocalYFromIndex(int index) {
+		return index >> 8;
+	}
+
+	public static int getLocalZFromIndex(int index) {
+		return (index >> 4) & 15;
+	}
+
+	public static int getWorldXFromIndex(int index, int chunk_x) {
+		return getLocalXFromIndex(index) + chunk_x * SystemSettings.CHUNK_SIZE;
+	}
+
+	public static int getWorldYFromIndex(int index, int min_y) {
+		return getLocalYFromIndex(index) + min_y;
+	}
+
+	public static int getWorldZFromIndex(int index, int chunk_z) {
+		return getLocalZFromIndex(index) + chunk_z * SystemSettings.CHUNK_SIZE;
 	}
 
 	public static int EuclideanDistance(int x1, int y1, int z1, int x2, int y2, int z2) {

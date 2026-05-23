@@ -10,6 +10,7 @@ import models.mesh.terrain.TerrainMesh;
 import settings.SystemSettings;
 import texture.UV;
 import worldgen.WorldgenThread;
+import utils.math.Calc;
 import utils.registry.Registry;
 
 public final class Water {
@@ -101,9 +102,9 @@ public final class Water {
 			int localI = i % this.LONGS_PER_CHUNK; 
 			while (index != 64) {
 				int localBitPos = localI * 64 + (63 - index);
-				int x = chunk_x * SystemSettings.CHUNK_SIZE + (localBitPos % SystemSettings.CHUNK_SIZE);
-				int y = this.min_y + (localBitPos / (SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE));
-				int z = chunk_z * SystemSettings.CHUNK_SIZE + ((localBitPos / SystemSettings.CHUNK_SIZE) % SystemSettings.CHUNK_SIZE);
+				int x = Calc.getWorldXFromIndex(localBitPos, chunk_x);
+				int y = Calc.getWorldYFromIndex(localBitPos, this.min_y);
+				int z = Calc.getWorldZFromIndex(localBitPos, chunk_z);
 
 				if (faceIndex == 0)
 					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "East", this.data.textureManager.blocksAtlas);

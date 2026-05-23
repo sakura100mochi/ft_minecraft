@@ -76,14 +76,10 @@ public final class Terrain {
 			int localI = i % this.LONGS_PER_CHUNK; 
 			while (index != 64) {
 				int localBitPos = localI * 64 + (63 - index);
-				int local_x = localBitPos % SystemSettings.CHUNK_SIZE;
-				int local_y = localBitPos / (SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE);
-				int local_z = (localBitPos / SystemSettings.CHUNK_SIZE) % SystemSettings.CHUNK_SIZE;
-				int x = chunk_x * SystemSettings.CHUNK_SIZE + local_x;
-				int y = this.min_y + local_y;
-				int z = chunk_z * SystemSettings.CHUNK_SIZE + local_z;
-				int registryIndex = Calc.getIndex(local_x, local_y, local_z);
-				int blockId = registries[registryIndex];
+				int x = Calc.getWorldXFromIndex(localBitPos, chunk_x);
+				int y = Calc.getWorldYFromIndex(localBitPos, this.min_y);
+				int z = Calc.getWorldZFromIndex(localBitPos, chunk_z);
+				int blockId = registries[localBitPos];
 				writeQuad(vertexInfos, blockId, x, y, z, faceIndex);
 
 				currentLong &= ~(1L << (63 - index));
