@@ -1,4 +1,4 @@
-package worldgen.generateBuffer;
+package worldgen.overworld.generateBuffer;
 
 import java.nio.ByteBuffer;
 

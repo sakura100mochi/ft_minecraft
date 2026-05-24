@@ -12,11 +12,11 @@ import data.Data;
 import settings.options.video_settings.VideoSettings;
 import utils.registry.BitCompression;
 import utils.registry.Palette;
-import worldgen.generateBuffer.Terrain;
-import worldgen.generateBuffer.Water;
 import utils.math.Calc;
 import utils.math.Position2D;
 import utils.registry.Registry;
+import worldgen.overworld.generateBuffer.Terrain;
+import worldgen.overworld.generateBuffer.Water;
 
 public final class WorldgenThread extends Thread {
 	private Data							data;
