@@ -30,7 +30,7 @@ public final class Height_map {
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int max_y = this.min_y;
-				for (int y = this.terrainHeight; y >= 0; y--) {
+				for (int y = this.terrainHeight - 1; y >= 0; y--) {
 					int index = Calc.getIndex(x, y, z);
 					if (base_terrain.get(index) || base_liquid.get(index)) {
 						max_y = y;
@@ -51,7 +51,7 @@ public final class Height_map {
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int max_y = this.min_y;
-				for (int y = this.terrainHeight; y >= 0; y--) {
+				for (int y = this.terrainHeight - 1; y >= 0; y--) {
 					int index = Calc.getIndex(x, y, z);
 					if (registries[index] != this.airId) {
 						max_y = y;
@@ -73,7 +73,7 @@ public final class Height_map {
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int max_y = this.min_y;
-				for (int y = this.terrainHeight; y >= 0; y--) {
+				for (int y = this.terrainHeight - 1; y >= 0; y--) {
 					int index = Calc.getIndex(x, y, z);
 					if (registries[index] != this.airId && registries[index] != this.waterId && registries[index] != this.lavaId) {
 						max_y = y;
@@ -91,7 +91,7 @@ public final class Height_map {
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int max_y = this.min_y;
-				for (int y = this.terrainHeight; y >= 0; y--) {
+				for (int y = this.terrainHeight - 1; y >= 0; y--) {
 					int index = Calc.getIndex(x, y, z);
 					if (base_terrain.get(index)) {
 						max_y = y;
@@ -113,7 +113,7 @@ public final class Height_map {
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int max_y = this.min_y;
-				for (int y = this.terrainHeight; y >= 0; y--) {
+				for (int y = this.terrainHeight - 1; y >= 0; y--) {
 					int index = Calc.getIndex(x, y, z);
 					if (registries[index] != this.airId) {
 						max_y = y;
@@ -135,7 +135,7 @@ public final class Height_map {
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int max_y = this.min_y;
-				for (int y = this.terrainHeight; y >= 0; y--) {
+				for (int y = this.terrainHeight - 1; y >= 0; y--) {
 					int index = Calc.getIndex(x, y, z);
 					if (registries[index] != this.airId) {
 						max_y = y;

@@ -108,7 +108,7 @@ public final class Block_predicate {
 					JSONArray offset = json.getJSONArray("offset");
 					offset_y = offset.getInt(1);
 				}
-				if (this.min_y <= y + offset_y && y + offset_y <= this.terrainHeight + this.min_y) {
+				if (this.min_y <= y + offset_y && y + offset_y < this.terrainHeight + this.min_y) {
 					return true;
 				}
 				return false;

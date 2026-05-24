@@ -13,7 +13,7 @@ public final class Features {
 		this.configured_feature = new Configured_feature(data);
 	}
 
-	public void generateFeatures(int chunk_x, int chunk_z) {
+	public void generateFeatures(int chunk_x, int chunk_z) throws Exception {
 		FeatureInfo[] placed_feature_infos = this.placed_feature.generatePlaced_Feature(chunk_x, chunk_z);
 		for (FeatureInfo featureInfo : placed_feature_infos) {
 			if (featureInfo.positions != null) {

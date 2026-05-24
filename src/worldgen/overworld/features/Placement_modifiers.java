@@ -116,12 +116,10 @@ public final class Placement_modifiers {
 
 	private void surface_water_depth_filter(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
 		int max_water_depth = json.getInt("max_water_depth");
-		int[] registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z);
-		if (registries == null) {
-			return;
-		}
-		int[][] motion_blocking_height_map = this.data.worldgenThread.getMOTION_BLOCKING(chunk_x, chunk_z, registries);
-		int[][] ocean_floor_height_map = this.data.worldgenThread.getOCEAN_FLOOR(chunk_x, chunk_z, registries);
+		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
+		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
+		BitSet base_liquid = this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
+		int[][] WORLD_SURFACE_WG = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, base_terrain, base_liquid);
 		List<Integer> result = new ArrayList<>(positions_list.size());
 		for (int i = 0; i < positions_list.size(); i += 3) {
 			int x = positions_list.get(i);
@@ -129,9 +127,9 @@ public final class Placement_modifiers {
 			int z = positions_list.get(i + 2);
 			int local_x = x & 15;
 			int local_z = z & 15;
-			int motion_blocking_y = motion_blocking_height_map[local_x][local_z];
-			int ocean_floor_y = ocean_floor_height_map[local_x][local_z];
-			int water_depth = motion_blocking_y - ocean_floor_y;
+			int world_surface_wg = WORLD_SURFACE_WG[local_x][local_z];
+			int ocean_floor_wg = OCEAN_FLOOR_WG[local_x][local_z];
+			int water_depth = world_surface_wg - ocean_floor_wg;
 			if (water_depth <= max_water_depth) {
 				result.add(x);
 				result.add(y);

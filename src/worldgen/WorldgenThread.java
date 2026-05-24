@@ -172,7 +172,7 @@ public final class WorldgenThread extends Thread {
 		});
 	}
 
-	public int[][] getWORLD_SURFACE(int chunk_x, int chunk_z, int[] registries) {
+	private int[][] getWORLD_SURFACE(int chunk_x, int chunk_z, int[] registries) {
 		long key = Position2D.toLong(chunk_x, chunk_z);
 		return this.WORLD_SURFACE_Cache.computeIfAbsent(key, k -> {
 			try {
@@ -183,7 +183,7 @@ public final class WorldgenThread extends Thread {
 		});
 	}
 
-	public int[][] getOCEAN_FLOOR(int chunk_x, int chunk_z, int[] registries) {
+	private int[][] getOCEAN_FLOOR(int chunk_x, int chunk_z, int[] registries) {
 		long key = Position2D.toLong(chunk_x, chunk_z);
 		return this.OCEAN_FLOOR_Cache.computeIfAbsent(key, k -> {
 			try {
@@ -205,7 +205,7 @@ public final class WorldgenThread extends Thread {
 		});
 	}
 
-	public int[][] getMOTION_BLOCKING(int chunk_x, int chunk_z, int[] registries) {
+	private int[][] getMOTION_BLOCKING(int chunk_x, int chunk_z, int[] registries) {
 		long key = Position2D.toLong(chunk_x, chunk_z);
 		return this.MOTION_BLOCKING_Cache.computeIfAbsent(key, k -> {
 			try {
@@ -216,7 +216,7 @@ public final class WorldgenThread extends Thread {
 		});
 	}
 
-	public int[][] getMOTION_BLOCKING_NO_LEAVES(int chunk_x, int chunk_z, int[] registries) {
+	private int[][] getMOTION_BLOCKING_NO_LEAVES(int chunk_x, int chunk_z, int[] registries) {
 		long key = Position2D.toLong(chunk_x, chunk_z);
 		return this.MOTION_BLOCKING_NO_LEAVES_Cache.computeIfAbsent(key, k -> {
 			try {
@@ -228,19 +228,37 @@ public final class WorldgenThread extends Thread {
 	}
 
 	public int[][] getHeightMap(int chunk_x, int chunk_z, String type) throws Exception {
+		System.out.println("Getting heightmap " + type + " for chunk (" + chunk_x + ", " + chunk_z + ")");
+		int[] registries = getRegistriesOrNull(chunk_x, chunk_z);
+		BitSet base_terrain = getBaseTerrain(chunk_x, chunk_z);
+		int[][] OCEAN_FLOOR_WG = getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
+		BitSet base_liquid = getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
+		int[][] WORLD_SURFACE_WG = getWORLD_SURFACE_WG(chunk_x, chunk_z, base_terrain, base_liquid);
 		switch (type) {
 			case "WORLD_SURFACE_WG":
-				return getWORLD_SURFACE_WG(chunk_x, chunk_z, getBaseTerrain(chunk_x, chunk_z), getBaseLiquid(chunk_x, chunk_z, getOCEAN_FLOOR_WG(chunk_x, chunk_z, getBaseTerrain(chunk_x, chunk_z))));
+				return WORLD_SURFACE_WG;
 			case "WORLD_SURFACE":
-				return getWORLD_SURFACE(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+				if (registries == null) {
+					return WORLD_SURFACE_WG;
+				}
+				return getWORLD_SURFACE(chunk_x, chunk_z, registries);
 			case "OCEAN_FLOOR_WG":
-				return getOCEAN_FLOOR_WG(chunk_x, chunk_z, getBaseTerrain(chunk_x, chunk_z));
+				return OCEAN_FLOOR_WG;
 			case "OCEAN_FLOOR":
-				return getOCEAN_FLOOR(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+				if (registries == null) {
+					return OCEAN_FLOOR_WG;
+				}
+				return getOCEAN_FLOOR(chunk_x, chunk_z, registries);
 			case "MOTION_BLOCKING":
-				return getMOTION_BLOCKING(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+				if (registries == null) {
+					return WORLD_SURFACE_WG;
+				}
+				return getMOTION_BLOCKING(chunk_x, chunk_z, registries);
 			case "MOTION_BLOCKING_NO_LEAVES":
-				return getMOTION_BLOCKING_NO_LEAVES(chunk_x, chunk_z, getRegistriesOrNull(chunk_x, chunk_z));
+				if (registries == null) {
+					return WORLD_SURFACE_WG;
+				}
+				return getMOTION_BLOCKING_NO_LEAVES(chunk_x, chunk_z, registries);
 			default:
 				throw new RuntimeException("Unsupported heightmap type: " + type);
 		}
@@ -299,8 +317,8 @@ public final class WorldgenThread extends Thread {
 					BitSet base_liquid = getBaseLiquid(x, z, OCEAN_FLOOR_WG);
 					int[] surface = getSurface(x, z, base_terrain, base_liquid);
 					int[] registries = this.data.worldgen.overworld.carvers.applyCarvers(surface, x, z);
-					this.registriesCache.put(current_key, registries);
 					this.data.worldgen.overworld.features.generateFeatures(chunk_x, chunk_z);
+					this.registriesCache.put(current_key, registries);
 					current_palette = Palette.palette(registries);
 					this.paletteCache.put(current_key, current_palette);
 					current_protoChunk = BitCompression.compress(registries, current_palette);
