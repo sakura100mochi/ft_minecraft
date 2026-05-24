@@ -12,6 +12,7 @@ import utils.math.Position2D;
 import utils.math.Vector3f;
 import utils.math.random.IRandom;
 import utils.math.random.XoroshiroRandom;
+import worldgen.provider.Provider;
 
 public final class Cave {
 	private final Data			data;
@@ -33,7 +34,7 @@ public final class Cave {
 		this.terrainHeight = data.parser.worldgen.overworld.terrainHeight;
 		this.probability = json.getFloat("probability");
 		this.y = json.getJSONObject("y");
-		this.lava_level = Carvers.getVerticalAnchor(json.getJSONObject("lava_level"));
+		this.lava_level = Provider.getVerticalAnchor(json.getJSONObject("lava_level"));
 		this.replaceable = json.getString("replaceable");
 		this.replaceable_blocks = Carvers.getReplaceableBlocks(data, this.replaceable);
 		this.yScale = json.get("yScale");
@@ -49,11 +50,11 @@ public final class Cave {
 			return;
 		}
 
-		int y = Carvers.getHeightProvider(this.y, iRandom);
-		float yScale = Carvers.getFloatProvider(this.yScale, iRandom);
-		float horizontal_radius_multiplier = Carvers.getFloatProvider(this.horizontal_radius_multiplier, iRandom);
-		float vertical_radius_multiplier = Carvers.getFloatProvider(this.vertical_radius_multiplier, iRandom);
-		float floor_level = Carvers.getFloatProvider(this.floor_level, iRandom);
+		int y = Provider.getHeightProvider(this.y, iRandom);
+		float yScale = Provider.getFloatProvider(this.yScale, iRandom);
+		float horizontal_radius_multiplier = Provider.getFloatProvider(this.horizontal_radius_multiplier, iRandom);
+		float vertical_radius_multiplier = Provider.getFloatProvider(this.vertical_radius_multiplier, iRandom);
+		float floor_level = Provider.getFloatProvider(this.floor_level, iRandom);
 
 		replaceCave(iRandom, chunk_x, chunk_z, y, this.lava_level, this.replaceable_blocks, yScale, horizontal_radius_multiplier, vertical_radius_multiplier, floor_level);
 	}

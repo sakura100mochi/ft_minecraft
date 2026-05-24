@@ -12,6 +12,7 @@ import utils.math.Position2D;
 import utils.math.Vector3f;
 import utils.math.random.IRandom;
 import utils.math.random.XoroshiroRandom;
+import worldgen.provider.Provider;
 
 public final class Canyon {
 	private final Data			data;
@@ -37,7 +38,7 @@ public final class Canyon {
 		this.terrainHeight = data.parser.worldgen.overworld.terrainHeight;
 		this.probability = json.getFloat("probability");
 		this.y = json.getJSONObject("y");
-		this.lava_level = Carvers.getVerticalAnchor(json.getJSONObject("lava_level"));
+		this.lava_level = Provider.getVerticalAnchor(json.getJSONObject("lava_level"));
 		this.replaceable = json.getString("replaceable");
 		this.replaceable_blocks = Carvers.getReplaceableBlocks(data, this.replaceable);
 		this.yScale = json.get("yScale");
@@ -58,12 +59,12 @@ public final class Canyon {
 			return;
 		}
 
-		int y = Carvers.getHeightProvider(this.y, iRandom);
-		float yScale = Carvers.getFloatProvider(this.yScale, iRandom);
-		float vertical_rotation = Carvers.getFloatProvider(this.vertical_rotation, iRandom);
-		float distance_factor = Carvers.getFloatProvider(this.distance_factor, iRandom);
-		float thickness = Carvers.getFloatProvider(this.thickness, iRandom);
-		float horizontal_radius_factor = Carvers.getFloatProvider(this.horizontal_radius_factor, iRandom);
+		int y = Provider.getHeightProvider(this.y, iRandom);
+		float yScale = Provider.getFloatProvider(this.yScale, iRandom);
+		float vertical_rotation = Provider.getFloatProvider(this.vertical_rotation, iRandom);
+		float distance_factor = Provider.getFloatProvider(this.distance_factor, iRandom);
+		float thickness = Provider.getFloatProvider(this.thickness, iRandom);
+		float horizontal_radius_factor = Provider.getFloatProvider(this.horizontal_radius_factor, iRandom);
 
 		replaceCanyon(iRandom, chunk_x, chunk_z, y, this.lava_level, this.replaceable_blocks, yScale, vertical_rotation, distance_factor, thickness, horizontal_radius_factor, this.vertical_radius_default_factor, this.vertical_radius_center_factor, this.width_smoothness);
 	}
