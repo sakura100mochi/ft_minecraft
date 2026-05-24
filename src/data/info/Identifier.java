@@ -34,6 +34,7 @@ public final class Identifier {
 		return value + extension;
 	}
 
+	// ex: return "grass_block" from "minecraft:grass_block"
 	public static String getValueFromIdentifier(String identifier) throws Exception {
 		if (identifier == null) {
 			throw new IllegalArgumentException("data.info.Identifier.getValueFromIdentifier() | argument is null.");
