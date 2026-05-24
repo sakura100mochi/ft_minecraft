@@ -298,11 +298,11 @@ public final class Placement_modifiers {
 		//int max_steps = json.getInt("max_steps");
 		//JSONObject target_condition = json.getJSONObject("target_condition");
 		//JSONObject allowed_search_condition = json.getJSONObject("allowed_search_condition");
-		System.out.println("environment_scan is not implemented yet");
+		//System.out.println("environment_scan is not implemented yet");
 	}
 
 	private void count_on_every_layer(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		System.out.println("count_on_every_layer is not implemented yet");
+		//System.out.println("count_on_every_layer is not implemented yet");
 	}
 
 	private void count(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {

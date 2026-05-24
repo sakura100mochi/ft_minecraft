@@ -1,4 +1,4 @@
-package worldgen.overworld.features;
+package worldgen.overworld.features.configured_feature;
 
 import org.json.JSONObject;
 
@@ -7,27 +7,21 @@ import data.info.FeatureInfo;
 
 public final class Configured_feature {
 	private final Data data;
+	private final Tree tree;
 
-	protected Configured_feature(Data data) throws Exception {
+	public Configured_feature(Data data) throws Exception {
 		this.data = data;
+		this.tree = new Tree(data);
 	}
 
-	protected void generateConfigured_Feature(FeatureInfo featureInfo) throws Exception {
-		System.out.println();
-		System.out.println(featureInfo.feature + " is generated at");
-		//for (int i = 0; i < featureInfo.positions.length; i += 3) {
-		//	int x = featureInfo.positions[i];
-		//	int y = featureInfo.positions[i + 1];
-		//	int z = featureInfo.positions[i + 2];
-		//	System.out.println("    " + x + " " + y + " " + z);
-		//}
+	public void generateConfigured_Feature(FeatureInfo featureInfo, int[] registries) throws Exception {
 		JSONObject json = this.data.parser.worldgen.configured_feature.getJsonObjectFromIdentifier(featureInfo.feature);
 		String type = json.getString("type");
 		JSONObject config = json.optJSONObject("config", null);
-		this.parse(type, config);
+		parse(type, config, featureInfo.positions, registries);
 	}
 
-	private void parse(String type, JSONObject config) throws Exception {
+	private void parse(String type, JSONObject config, int[] positions, int[] registries) throws Exception {
 		switch (type) {
 			case "minecraft:bamboo":
 				break;
@@ -110,6 +104,7 @@ public final class Configured_feature {
 			case "minecraft:spring_feature":
 				break;
 			case "minecraft:tree":
+				this.tree.parse(config, positions, registries);
 				break;
 			case "minecraft:twisting_vines":
 				break;

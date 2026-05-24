@@ -228,7 +228,6 @@ public final class WorldgenThread extends Thread {
 	}
 
 	public int[][] getHeightMap(int chunk_x, int chunk_z, String type) throws Exception {
-		System.out.println("Getting heightmap " + type + " for chunk (" + chunk_x + ", " + chunk_z + ")");
 		int[] registries = getRegistriesOrNull(chunk_x, chunk_z);
 		BitSet base_terrain = getBaseTerrain(chunk_x, chunk_z);
 		int[][] OCEAN_FLOOR_WG = getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
@@ -309,24 +308,24 @@ public final class WorldgenThread extends Thread {
 			for (int z = chunk_z - 1; z <= chunk_z + 1; z++) {
 				long current_key = Position2D.toLong(x, z);
 				int[] current_registries = this.registriesCache.get(current_key);
-				long[] current_protoChunk = this.protoChunksCache.get(current_key);
-				Map<Integer, Integer> current_palette = this.paletteCache.get(current_key);
-				if (current_registries == null && (current_protoChunk == null || current_palette == null)) {
+				if (current_registries == null) {
 					BitSet base_terrain = getBaseTerrain(x, z);
 					int[][] OCEAN_FLOOR_WG = getOCEAN_FLOOR_WG(x, z, base_terrain);
 					BitSet base_liquid = getBaseLiquid(x, z, OCEAN_FLOOR_WG);
 					int[] surface = getSurface(x, z, base_terrain, base_liquid);
-					int[] registries = this.data.worldgen.overworld.carvers.applyCarvers(surface, x, z);
-					this.data.worldgen.overworld.features.generateFeatures(chunk_x, chunk_z);
+					int[] carvers = this.data.worldgen.overworld.carvers.applyCarvers(surface, x, z);
+					int[] registries = this.data.worldgen.overworld.features.generateFeatures(carvers, x, z);
 					this.registriesCache.put(current_key, registries);
-					current_palette = Palette.palette(registries);
-					this.paletteCache.put(current_key, current_palette);
-					current_protoChunk = BitCompression.compress(registries, current_palette);
-					this.protoChunksCache.put(current_key, current_protoChunk);
-				} else if (current_registries == null && current_protoChunk != null && current_palette != null) {
-					current_registries = BitCompression.decompress(current_protoChunk, Palette.reversePalette(current_palette));
-					this.registriesCache.put(current_key, current_registries);
-				} else if (current_registries != null && (current_protoChunk == null || current_palette == null)) {
+				}
+			}
+		}
+		for (int x = chunk_x - 1; x <= chunk_x + 1; x++) {
+			for (int z = chunk_z - 1; z <= chunk_z + 1; z++) {
+				long current_key = Position2D.toLong(x, z);
+				int[] current_registries = this.registriesCache.get(current_key);
+				long[] current_protoChunk = this.protoChunksCache.get(current_key);
+				Map<Integer, Integer> current_palette = this.paletteCache.get(current_key);
+				if (current_protoChunk == null || current_palette == null) {
 					current_palette = Palette.palette(current_registries);
 					this.paletteCache.put(current_key, current_palette);
 					current_protoChunk = BitCompression.compress(current_registries, current_palette);
