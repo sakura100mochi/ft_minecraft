@@ -64,14 +64,16 @@ public final class Carvers {
 	protected static List<Integer> getReplaceableBlocks(Data data, String replaceable) throws Exception {
 		return replaceableBlocksCache.computeIfAbsent(replaceable, key -> {
 			try {
-				String path = "block/" + Identifier.getFileNameFromIdentifier(replaceable, ".json");
-				List<String> identifiers = data.parser.tags.getIdentifiersFromTag(path);
+				String path = "block/";
+				String file_name = Identifier.getFileNameFromIdentifier(replaceable, ".json");
+				List<String> identifiers = data.parser.tags.getBlockListFromTag(path, file_name);
 				List<Integer> result = new ArrayList<>();
 				for (int i = 0; i < identifiers.size(); i++) {
 					String current = identifiers.get(i);
 					if (current.startsWith("#")) {
-						String current_path = "block/" + Identifier.getFileNameFromIdentifier(current, ".json");
-						List<String> current_identifiers = data.parser.tags.getIdentifiersFromTag(current_path);
+						String current_path = "block/";
+						String current_file_name = Identifier.getFileNameFromIdentifier(current, ".json");
+						List<String> current_identifiers = data.parser.tags.getBlockListFromTag(current_path, current_file_name);
 						for (int j = 0; j < current_identifiers.size(); j++) {
 							result.add(Registry.getId(current_identifiers.get(j)));
 						}

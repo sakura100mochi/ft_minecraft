@@ -124,7 +124,7 @@ public final class Block_predicate {
 				}
 				blockId = this.data.worldgenThread.getBlockRegistryId(x + offset_x, y + offset_y, z + offset_z);
 				String tag = json.getString("tag");
-				List<String> tags = this.data.parser.tags.getIdentifiersFromTag(tag);
+				List<String> tags = this.data.parser.tags.getBlockListFromIdentifier(null, tag);
 				System.out.println("matching_block_tag");
 				System.out.println(tag + ": " + tags);
 				for (String block : tags) {
@@ -158,7 +158,7 @@ public final class Block_predicate {
 					for (int i = 0; i < blocks_array.length(); i++) {
 						String block = blocks_array.getString(i);
 						if (block.startsWith("#")) {
-							tags = this.data.parser.tags.getIdentifiersFromTag(block.replace("#", ""));
+							tags = this.data.parser.tags.getBlockListFromIdentifier(null, block.replace("#", ""));
 							System.out.println("matching_blocks");
 							System.out.println(block + ": " + tags);
 							for (String identifier : tags) {
@@ -200,7 +200,7 @@ public final class Block_predicate {
 					for (int i = 0; i < fluids_array.length(); i++) {
 						String block = fluids_array.getString(i);
 						if (block.startsWith("#")) {
-							tags = this.data.parser.tags.getIdentifiersFromTag(block.replace("#", ""));
+							tags = this.data.parser.tags.getBlockListFromIdentifier(null, block.replace("#", ""));
 							System.out.println("matching_fluids");
 							System.out.println(block + ": " + tags);
 							for (String identifier : tags) {
@@ -229,7 +229,7 @@ public final class Block_predicate {
 					offset_z = offset.getInt(2);
 				}
 				blockId = this.data.worldgenThread.getBlockRegistryId(x + offset_x, y + offset_y, z + offset_z);
-				tags = this.data.parser.tags.getIdentifiersFromTag("block/replaceable.json");
+				tags = this.data.parser.tags.getBlockListFromTag("block/", "replaceable.json");
 				System.out.println("replaceable");
 				System.out.println("block/replaceable.json : " + tags);
 				for (String block : tags) {
@@ -254,7 +254,7 @@ public final class Block_predicate {
 				}
 				return false;
 			case "minecraft:would_survive":
-				System.out.println("minecraft:would_survive is not implemented yet");
+				//System.out.println("minecraft:would_survive is not implemented yet");
 				return true;
 			default:
 				throw new RuntimeException("Unknown block predicate type: " + type);
