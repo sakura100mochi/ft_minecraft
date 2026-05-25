@@ -14,13 +14,12 @@ public final class Features {
 		this.configured_feature = new Configured_feature(data);
 	}
 
-	public int[] generateFeatures(int[] registries, int chunk_x, int chunk_z) throws Exception {
+	public void generateFeatures(int chunk_x, int chunk_z) throws Exception {
 		FeatureInfo[] placed_feature_infos = this.placed_feature.generatePlaced_Feature(chunk_x, chunk_z);
 		for (FeatureInfo featureInfo : placed_feature_infos) {
 			if (featureInfo.positions != null) {
-				this.configured_feature.generateConfigured_Feature(featureInfo, registries);
+				this.configured_feature.generateConfigured_Feature(featureInfo);
 			}
 		}
-		return registries;
 	}
 }

@@ -41,9 +41,6 @@ public final class Placement_modifiers {
 		return (chunk_x, chunk_z) -> {
 			try{
 				List<Integer> positions_list = new ArrayList<>();
-				positions_list.add(chunk_x * SystemSettings.CHUNK_SIZE);
-				positions_list.add(0);
-				positions_list.add(chunk_z * SystemSettings.CHUNK_SIZE);
 				for (int i = 0; i < placement.length(); i++) {
 					JSONObject placement_modifier = placement.getJSONObject(i);
 					String type = placement_modifier.getString("type");
@@ -199,45 +196,35 @@ public final class Placement_modifiers {
 		double noise_level = json.getDouble("noise_level");
 		int below_noise = json.getInt("below_noise");
 		int above_noise = json.getInt("above_noise");
-		List<Integer> result = new ArrayList<>(positions_list.size());
-		for (int i = 0; i < positions_list.size(); i += 3) {
-			int x = positions_list.get(i);
-			int y = positions_list.get(i + 1);
-			int z = positions_list.get(i + 2);	
-			double noise_value = this.noise.sample3D(x, y, z);
-			int count = noise_value < noise_level ? below_noise : above_noise;
-			for (int j = 0; j < count; j++) {
-				result.add(x);
-				result.add(y);
-				result.add(z);
-			}
+		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
+		int initial_y = 0;
+		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
+		double noise_value = this.noise.sample3D(initial_x, initial_y, initial_z);
+		int count = noise_value < noise_level ? below_noise : above_noise;
+		for (int j = 0; j < count; j++) {
+			positions_list.add(initial_x);
+			positions_list.add(initial_y);
+			positions_list.add(initial_z);
 		}
-		positions_list.clear();
-		positions_list.addAll(result);
 	}
 
 	private void noise_based_count(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
 		double noise_factor = json.getDouble("noise_factor");
 		double noise_offset = json.optDouble("noise_offset", 0.0);
 		int noise_to_count_ratio = json.getInt("noise_to_count_ratio");
-		List<Integer> result = new ArrayList<>(positions_list.size());
-		for (int i = 0; i < positions_list.size(); i += 3) {
-			int x = positions_list.get(i);
-			int y = positions_list.get(i + 1);
-			int z = positions_list.get(i + 2);
-			double noise_value = this.noise.sample3D(x / noise_factor, 0, z / noise_factor);
-			if (noise_value < 0) {
-				continue;
-			}
-			int count = (int)Math.ceil((noise_value + noise_offset) * noise_to_count_ratio);
-			for (int j = 0; j < count; j++) {
-				result.add(x);
-				result.add(y);
-				result.add(z);
-			}
+		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
+		int initial_y = 0;
+		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
+		double noise_value = this.noise.sample3D(initial_x / noise_factor, initial_y / noise_factor, initial_z / noise_factor);
+		if (noise_value < 0) {
+			return;
 		}
-		positions_list.clear();
-		positions_list.addAll(result);
+		int count = (int)Math.ceil((noise_value + noise_offset) * noise_to_count_ratio);
+		for (int j = 0; j < count; j++) {
+			positions_list.add(initial_x);
+			positions_list.add(initial_y);
+			positions_list.add(initial_z);
+		}
 	}
 
 	private void in_square(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
@@ -254,9 +241,6 @@ public final class Placement_modifiers {
 	private void heightmap(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
 		String heightmap = json.getString("heightmap");
 		int[][] map = this.data.worldgenThread.getHeightMap(chunk_x, chunk_z, heightmap);
-		if (map == null) {
-			return;
-		}
 		for (int i = 0; i < positions_list.size(); i += 3) {
 			int x = positions_list.get(i);
 			int z = positions_list.get(i + 2);
@@ -298,28 +282,23 @@ public final class Placement_modifiers {
 		//int max_steps = json.getInt("max_steps");
 		//JSONObject target_condition = json.getJSONObject("target_condition");
 		//JSONObject allowed_search_condition = json.getJSONObject("allowed_search_condition");
-		//System.out.println("environment_scan is not implemented yet");
+		System.out.println("environment_scan is not implemented yet");
 	}
 
 	private void count_on_every_layer(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		//System.out.println("count_on_every_layer is not implemented yet");
+		System.out.println("count_on_every_layer is not implemented yet");
 	}
 
 	private void count(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		List<Integer> result = new ArrayList<>(positions_list.size());
-		for (int i = 0; i < positions_list.size(); i += 3) {
-			int x = positions_list.get(i);
-			int y = positions_list.get(i + 1);
-			int z = positions_list.get(i + 2);
-			int count = Provider.getIntProvider(json.get("count"), this.data.random);
-			for (int j = 0; j < count; j++) {
-				result.add(x);
-				result.add(y);
-				result.add(z);
-			}
+		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
+		int initial_y = 0;
+		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
+		int count = Provider.getIntProvider(json.get("count"), this.data.random);
+		for (int j = 0; j < count; j++) {
+			positions_list.add(initial_x);
+			positions_list.add(initial_y);
+			positions_list.add(initial_z);
 		}
-		positions_list.clear();
-		positions_list.addAll(result);
 	}
 
 	private void carving_mask(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {

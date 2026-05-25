@@ -1,5 +1,6 @@
 package worldgen.overworld.features.configured_feature;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import data.Data;
@@ -14,14 +15,14 @@ public final class Configured_feature {
 		this.tree = new Tree(data);
 	}
 
-	public void generateConfigured_Feature(FeatureInfo featureInfo, int[] registries) throws Exception {
+	public void generateConfigured_Feature(FeatureInfo featureInfo) throws Exception {
 		JSONObject json = this.data.parser.worldgen.configured_feature.getJsonObjectFromIdentifier(featureInfo.feature);
 		String type = json.getString("type");
 		JSONObject config = json.optJSONObject("config", null);
-		parse(type, config, featureInfo.positions, registries);
+		parse(type, config, featureInfo);
 	}
 
-	private void parse(String type, JSONObject config, int[] positions, int[] registries) throws Exception {
+	private void parse(String type, JSONObject config, FeatureInfo featureInfo) throws Exception {
 		switch (type) {
 			case "minecraft:bamboo":
 				break;
@@ -80,6 +81,7 @@ public final class Configured_feature {
 			case "minecraft:random_boolean_selector":
 				break;
 			case "minecraft:random_selector":
+				random_selector(config, featureInfo);
 				break;
 			case "minecraft:random_patch":
 				break;
@@ -104,7 +106,7 @@ public final class Configured_feature {
 			case "minecraft:spring_feature":
 				break;
 			case "minecraft:tree":
-				this.tree.parse(config, positions, registries);
+				this.tree.parse(config, featureInfo.positions);
 				break;
 			case "minecraft:twisting_vines":
 				break;
@@ -154,5 +156,36 @@ public final class Configured_feature {
 			default:
 				throw new RuntimeException("Unsupported configured feature type: " + type);
 		}
+	}
+
+	private void random_selector(JSONObject config, FeatureInfo featureInfo) throws Exception {
+		String result = null;
+		String default_feature = config.optString("default", null);
+		if (default_feature == null) {
+			default_feature = config.getJSONObject("default").getString("feature");
+		}
+		JSONArray features = config.optJSONArray("features", null);
+
+		if (features != null) {
+			for (int i = 0; i < features.length(); i++) {
+				JSONObject feature_chance = features.getJSONObject(i);
+				String feature = feature_chance.optString("feature", null);
+				if (feature == null) {
+					feature_chance.getJSONObject("feature").getString("feature");
+				}
+				float chance = feature_chance.getFloat("chance");
+				float random_value = this.data.random.nextFloat();
+				if (random_value < chance) {
+					result = feature;
+					break;
+				}
+			}
+		}
+
+		if (result == null) {
+			result = default_feature;
+		}
+
+		generateConfigured_Feature(new FeatureInfo(result, featureInfo.positions));
 	}
 }

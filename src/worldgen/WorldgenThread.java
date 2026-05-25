@@ -39,6 +39,7 @@ public final class WorldgenThread extends Thread {
 	private final Map<Long, int[]>					surfaceCache = new ConcurrentHashMap<>();
 	private final Map<String, Map<Long, BitSet>>	carverCache = new ConcurrentHashMap<>();
 	private final Set<Long>							carversComputed = ConcurrentHashMap.newKeySet();
+	private final Map<Long, int[]>					appliedCarversCache = new ConcurrentHashMap<>();
 	private final Map<Long, int[]>					registriesCache = new ConcurrentHashMap<>();
 
 	public void run() {
@@ -126,7 +127,11 @@ public final class WorldgenThread extends Thread {
 					OCEAN_FLOOR_WG_Cache.remove(key);
 					base_liquidCache.remove(key);
 					surfaceCache.remove(key);
+					carverCache.values().forEach(map -> {
+						map.remove(key);
+					});
 					carversComputed.remove(key);
+					appliedCarversCache.remove(key);
 					registriesCache.remove(key);
 				}
 			}
@@ -295,6 +300,17 @@ public final class WorldgenThread extends Thread {
 		return this.carverCache;
 	}
 
+	public int[] getAppliedCarversCache(int chunk_x, int chunk_z, int[] surface) {
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.appliedCarversCache.computeIfAbsent(key, k -> {
+			try {
+				return this.data.worldgen.overworld.carvers.applyCarvers(surface, chunk_x, chunk_z);
+			} catch (Exception e) {
+				throw new RuntimeException("Error applying carvers for chunk (" + chunk_x + ", " + chunk_z + "): ", e);
+			}
+		});
+	}
+
 	private int[] getRegistries(int chunk_x, int chunk_z) throws Exception {
 		for (int x = chunk_x - 7; x <= chunk_x + 7; x++) {
 			for (int z = chunk_z - 7; z <= chunk_z + 7; z++) {
@@ -313,28 +329,23 @@ public final class WorldgenThread extends Thread {
 					int[][] OCEAN_FLOOR_WG = getOCEAN_FLOOR_WG(x, z, base_terrain);
 					BitSet base_liquid = getBaseLiquid(x, z, OCEAN_FLOOR_WG);
 					int[] surface = getSurface(x, z, base_terrain, base_liquid);
-					int[] carvers = this.data.worldgen.overworld.carvers.applyCarvers(surface, x, z);
-					int[] registries = this.data.worldgen.overworld.features.generateFeatures(carvers, x, z);
-					this.registriesCache.put(current_key, registries);
-				}
-			}
-		}
-		for (int x = chunk_x - 1; x <= chunk_x + 1; x++) {
-			for (int z = chunk_z - 1; z <= chunk_z + 1; z++) {
-				long current_key = Position2D.toLong(x, z);
-				int[] current_registries = this.registriesCache.get(current_key);
-				long[] current_protoChunk = this.protoChunksCache.get(current_key);
-				Map<Integer, Integer> current_palette = this.paletteCache.get(current_key);
-				if (current_protoChunk == null || current_palette == null) {
-					current_palette = Palette.palette(current_registries);
-					this.paletteCache.put(current_key, current_palette);
-					current_protoChunk = BitCompression.compress(current_registries, current_palette);
-					this.protoChunksCache.put(current_key, current_protoChunk);
+					int[] carvers = getAppliedCarversCache(x, z, surface);
+					this.data.worldgen.overworld.features.generateFeatures(x, z);
+					this.registriesCache.put(current_key, carvers);
 				}
 			}
 		}
 		long key = Position2D.toLong(chunk_x, chunk_z);
-		return this.registriesCache.get(key);
+		int[] registries = this.registriesCache.get(key);
+		Map<Integer, Integer> palette = this.paletteCache.get(key);
+		long[] protoChunk = this.protoChunksCache.get(key);
+		if (palette == null || protoChunk == null) {
+			palette = Palette.palette(registries);
+			protoChunk = BitCompression.compress(registries, palette);
+			this.paletteCache.put(key, palette);
+			this.protoChunksCache.put(key, protoChunk);
+		}
+		return registries;
 	}
 
 	public int[] getRegistriesOrNull(int chunk_x, int chunk_z) {

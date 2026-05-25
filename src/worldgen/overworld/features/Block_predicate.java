@@ -254,7 +254,7 @@ public final class Block_predicate {
 				}
 				return false;
 			case "minecraft:would_survive":
-				//System.out.println("minecraft:would_survive is not implemented yet");
+				System.out.println("minecraft:would_survive is not implemented yet");
 				return true;
 			default:
 				throw new RuntimeException("Unknown block predicate type: " + type);
