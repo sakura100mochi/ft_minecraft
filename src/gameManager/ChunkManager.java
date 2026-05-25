@@ -14,18 +14,14 @@ public final class ChunkManager {
 	private final ConcurrentLinkedQueue<ChunkUpdateEvent>	updateQueue = new ConcurrentLinkedQueue<>();
 
 	private static class ChunkUpdateEvent {
-		protected final long	chunk;
-		protected ByteBuffer	terrainVertexInfos;
-		protected ByteBuffer	waterVertexInfos;
+		protected final long		chunk;
+		protected final String		type;
+		protected final ByteBuffer	vertexInfos;
+
 		ChunkUpdateEvent(long chunk, String type, ByteBuffer vertexInfos) {
 			this.chunk = chunk;
-			if (type.equals("terrain")) {
-				this.terrainVertexInfos = vertexInfos;
-			} else if (type.equals("water")) {
-				this.waterVertexInfos = vertexInfos;
-			} else {
-				throw new IllegalArgumentException("gameManager.ChunkManager.ChunkUpdateEvent | Invalid type");
-			}
+			this.type = type;
+			this.vertexInfos = vertexInfos;
 		}
 	}
 
@@ -42,11 +38,14 @@ public final class ChunkManager {
 		while (!this.updateQueue.isEmpty()) {
 			ChunkUpdateEvent event = this.updateQueue.poll();
 			if (event != null) {
-				if (event.terrainVertexInfos != null) {
-					this.terrainMesh.generateTerrainMesh(Position2D.decodedX(event.chunk), Position2D.decodedY(event.chunk), event.terrainVertexInfos);
+				if (event.type.equals("terrain") && event.vertexInfos != null) {
+					this.terrainMesh.generateTerrainMesh(Position2D.decodedX(event.chunk), Position2D.decodedY(event.chunk), "terrain", event.vertexInfos);
 				}
-				if (event.waterVertexInfos != null) {
-					this.waterMesh.generateWaterMesh(Position2D.decodedX(event.chunk), Position2D.decodedY(event.chunk), event.waterVertexInfos);
+				if (event.type.equals("transparency") && event.vertexInfos != null) {
+					this.terrainMesh.generateTerrainMesh(Position2D.decodedX(event.chunk), Position2D.decodedY(event.chunk), "transparency", event.vertexInfos);
+				}
+				if (event.type.equals("water") && event.vertexInfos != null) {
+					this.waterMesh.generateWaterMesh(Position2D.decodedX(event.chunk), Position2D.decodedY(event.chunk), event.vertexInfos);
 				}
 			}
 		}

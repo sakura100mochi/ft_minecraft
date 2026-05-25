@@ -51,9 +51,12 @@ public final class Renderer {
 		this.allMeshes.rendertype_cloudsMesh.render();
 		this.shaderManager.rendertype_cloudsShader.unbind();
 
+		GL11.glEnable(GL11.GL_BLEND);
+
 		this.shaderManager.terrainShader.bind();
 		this.shaderManager.terrainShader.update();
 		this.allMeshes.terrainMesh.render();
+		this.allMeshes.terrainMesh.renderTransparency();
 		this.shaderManager.terrainShader.unbind();
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
@@ -62,8 +65,6 @@ public final class Renderer {
 		this.shaderManager.entityShader.update();
 		this.allMeshes.entityMesh.render();
 		this.shaderManager.entityShader.unbind();
-
-		GL11.glEnable(GL11.GL_BLEND);
 
 		this.shaderManager.terrainShader.bind();
 		this.shaderManager.terrainShader.update();

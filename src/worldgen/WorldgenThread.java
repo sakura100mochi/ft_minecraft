@@ -1,6 +1,7 @@
 package worldgen;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Iterator;
 
 import data.Data;
+import settings.SystemSettings;
 import settings.options.video_settings.VideoSettings;
 import utils.registry.BitCompression;
 import utils.registry.Palette;
@@ -20,6 +22,7 @@ import worldgen.overworld.generateBuffer.Water;
 
 public final class WorldgenThread extends Thread {
 	private Data							data;
+	private int								terrainHeight = -1;
 	private Terrain							terrainGenerator;
 	private Water							waterGenerator;
 	private boolean							isRunning = false;
@@ -41,6 +44,7 @@ public final class WorldgenThread extends Thread {
 	private final Set<Long>							carversComputed = ConcurrentHashMap.newKeySet();
 	private final Map<Long, int[]>					appliedCarversCache = new ConcurrentHashMap<>();
 	private final Map<Long, int[]>					registriesCache = new ConcurrentHashMap<>();
+	private final Map<Long, int[]>					transparencyCache = new ConcurrentHashMap<>();
 
 	public void run() {
 		while (true) {
@@ -76,6 +80,7 @@ public final class WorldgenThread extends Thread {
 				this.isRunning = true;
 				this.terrainGenerator = new Terrain(this.data, this);
 				this.waterGenerator = new Water(this.data, this);
+				this.terrainHeight = this.data.parser.worldgen.overworld.terrainHeight;
 				return true;
 			}
 			return false;
@@ -101,6 +106,8 @@ public final class WorldgenThread extends Thread {
 			this.data.chunkManager.addUpdateEvent(chunk, "terrain", terrain);
 			ByteBuffer water = this.waterGenerator.generateBuffer(chunk_x, chunk_z, getRegistries(chunk_x, chunk_z));
 			this.data.chunkManager.addUpdateEvent(chunk, "water", water);
+			ByteBuffer transparency = this.terrainGenerator.generateBuffer(chunk_x, chunk_z, getTransparency(chunk_x, chunk_z));
+			this.data.chunkManager.addUpdateEvent(chunk, "transparency", transparency);
 			this.currentlyGenerating.remove(chunk);
 		}
 		this.cleanEventCounter++;
@@ -150,6 +157,7 @@ public final class WorldgenThread extends Thread {
 					OCEAN_FLOOR_Cache.remove(key);
 					MOTION_BLOCKING_Cache.remove(key);
 					MOTION_BLOCKING_NO_LEAVES_Cache.remove(key);
+					transparencyCache.remove(key);
 				}
 			}
 		}
@@ -351,6 +359,19 @@ public final class WorldgenThread extends Thread {
 	public int[] getRegistriesOrNull(int chunk_x, int chunk_z) {
 		long key = Position2D.toLong(chunk_x, chunk_z);
 		return this.registriesCache.get(key);
+	}
+
+	public int[] getTransparency(int chunk_x, int chunk_z) throws Exception {
+		if (this.terrainHeight == -1) {
+			throw new RuntimeException("Terrain height is not set. Cannot generate transparency data.");
+		}
+		long key = Position2D.toLong(chunk_x, chunk_z);
+		return this.transparencyCache.computeIfAbsent(key, k -> {
+			int[] result = new int[SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE * this.terrainHeight];
+			int airId = Registry.getId("minecraft:air");
+			Arrays.fill(result, airId);
+			return result;
+		});
 	}
 
 	public boolean isAir(int x, int y, int z) throws Exception {

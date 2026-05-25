@@ -50,6 +50,13 @@ public final class Calc {
 		return (int)Math.hypot(dx, dz);
 	}
 
+	public static int distance(int x1, int y1, int z1, int x2, int y2, int z2) {
+		int dx = x2 - x1;
+		int dy = y2 - y1;
+		int dz = z2 - z1;
+		return (int)Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+
 	public static int getChunkIndex(int world_block_pos) {
 		return Math.floorDiv(world_block_pos, SystemSettings.CHUNK_SIZE);
 	}

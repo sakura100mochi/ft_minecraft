@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import data.Data;
 import data.info.BlockState;
 import worldgen.provider.BlockStateProvider;
+import worldgen.provider.Provider;
 import utils.registry.Registry;
 import utils.math.Calc;
 
@@ -76,15 +77,28 @@ public final class Tree {
 			if (check_size(minimum_size, trunk_height, x, y, z, ignore_vines) == false) {
 				continue;
 			}
-			placeTrunk(trunk_placer, trunk_provider, x, y, z, trunk_height);
 			placeFoliage(foliage_placer, foliage_provider, x, y, z, trunk_height);
+			placeTrunk(trunk_placer, trunk_provider, x, y, z, trunk_height);
 		}
 	}
 
-	private void placeFoliage(JSONObject foliage_placer, JSONObject foliage_provider, int x, int y, int z, int trunk_height) {
+	private void placeFoliage(JSONObject foliage_placer, JSONObject foliage_provider, int x, int y, int z, int trunk_height) throws Exception {
 		String foliage_placer_type = foliage_placer.getString("type");
 		switch (foliage_placer_type) {
 			case "minecraft:blob_foliage_placer":
+				int height = Provider.getIntProvider(foliage_placer.get("height"), this.data.random);
+				int offset = Provider.getIntProvider(foliage_placer.get("offset"), this.data.random);
+				int radius = Provider.getIntProvider(foliage_placer.get("radius"), this.data.random);
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
+					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
+							if (Calc.distance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius) {
+								BlockState foliage = BlockStateProvider.getBlockState(this.data, foliage_provider, x_pos, y_pos, z_pos);
+								place_transparency_block(x_pos, y_pos, z_pos, foliage);
+							}
+						}
+					}
+				}
 				break;
 			case "minecraft:bush_foliage_placer":
 				break;
@@ -149,6 +163,20 @@ public final class Tree {
 			default:
 				throw new IllegalArgumentException("Invalid trunk_placer type");
 		}
+	}
+
+	private void place_transparency_block(int x, int y, int z, BlockState state) throws Exception {
+		if (y < this.min_y || y >= this.min_y + this.terrainHeight) {
+			return;
+		}
+		int chunk_x = x >> 4;
+		int chunk_z = z >> 4;
+		int[] transparency = this.data.worldgenThread.getTransparency(chunk_x, chunk_z);
+		int local_x = x & 15;
+		int local_y = y - this.min_y;
+		int local_z = z & 15;
+		int index = Calc.getIndex(local_x, local_y, local_z);
+		transparency[index] = Registry.getId(state.identifier);
 	}
 
 	private void place_Block(int x, int y, int z, BlockState state) throws Exception {
