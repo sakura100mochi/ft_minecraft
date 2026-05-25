@@ -15,6 +15,7 @@ public final class KeyBinds {
 	private static int	Walk_Forward = GLFW.GLFW_KEY_W;
 	private static int	Change_Perspective = GLFW.GLFW_KEY_F5;
 	private static int	Change_Game_Mode = GLFW.GLFW_KEY_F3;
+	private static int	Screenshot = GLFW.GLFW_KEY_F2;
 
 	//getters
 	public static int getJump() { return Jump; }
@@ -26,6 +27,7 @@ public final class KeyBinds {
 	public static int getWalk_Forward() { return Walk_Forward; }
 	public static int getChange_Perspective() { return Change_Perspective; }
 	public static int getChange_Game_Mode() { return Change_Game_Mode; }
+	public static int getScreenshot() { return Screenshot; }
 
 	//setters
 	public static void setJump(int newJump) {
@@ -71,6 +73,11 @@ public final class KeyBinds {
 	public static void setChange_Game_Mode(int newChange_Game_Mode) {
 		if (isValidKey(newChange_Game_Mode, Change_Game_Mode) == true) {
 			Change_Game_Mode = newChange_Game_Mode;
+		}
+	}
+	public static void setScreenshot(int newScreenshot) {
+		if (isValidKey(newScreenshot, Screenshot) == true) {
+			Screenshot = newScreenshot;
 		}
 	}
 

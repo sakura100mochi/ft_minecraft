@@ -12,6 +12,7 @@ import worldgen.WorldgenThread;
 import worldgen.Worldgen;
 import engine.Window;
 import engine.FPScounter;
+import engine.Screenshot;
 import engine.input.Keyboard;
 import engine.input.Mouse;
 import engine.input.KeyHandle;
@@ -83,6 +84,7 @@ public final class Main {
 		data.grass_color = new Grass_color(data);
 		data.water_color = new Water_color(data);
 		data.fpsCounter = new FPScounter();
+		data.screenshot = new Screenshot(data);
 		data.keyboard = new Keyboard(data);
 		data.mouse = new Mouse(data);
 		data.keyHandle = new KeyHandle(data);

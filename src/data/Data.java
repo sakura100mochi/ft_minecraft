@@ -10,6 +10,7 @@ import worldgen.WorldgenThread;
 import worldgen.Worldgen;
 import engine.Window;
 import engine.FPScounter;
+import engine.Screenshot;
 import engine.input.Keyboard;
 import engine.input.Mouse;
 import engine.input.KeyHandle;
@@ -45,6 +46,7 @@ public final class Data {
 	public Physics_engine	physics_engine = null;
 	public Window			window = null;
 	public FPScounter		fpsCounter = null;
+	public Screenshot		screenshot = null;
 	public Keyboard			keyboard = null;
 	public Mouse			mouse = null;
 	public KeyHandle		keyHandle = null;
