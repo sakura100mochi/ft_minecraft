@@ -107,17 +107,17 @@ public final class Water {
 				int z = Calc.getWorldZFromIndex(localBitPos, chunk_z);
 
 				if (faceIndex == 0)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "East", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "East", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 1)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "West", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "West", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 2)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "South", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "South", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 3)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "North", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "North", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 4)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "Up", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "Up", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 5)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "Down", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "Down", this.data.textureManager.blocksAtlas, this.data.block_colors);
 
 				currentLong &= ~(1L << (63 - index));
 				index = Long.numberOfLeadingZeros(currentLong);

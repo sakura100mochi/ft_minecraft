@@ -12,7 +12,7 @@ import models.mesh.AMesh;
 import settings.SystemSettings;
 import texture.TextureAtlas;
 import texture.UV;
-import utils.color.IColor;
+import utils.color.block_colors.Block_colors;
 
 public final class TerrainMesh extends AMesh {
 	public static final int	TOTAL_BYTE_SIZE = 3 * Float.BYTES
@@ -62,7 +62,7 @@ public final class TerrainMesh extends AMesh {
 	}
 
 	// static methods
-	public static void writeQuad(ByteBuffer vertexInfos, BlockInfo blockInfo, UV uv_class, IColor iColor, float x, float y, float z, String face, TextureAtlas textureAtlas) throws Exception {
+	public static void writeQuad(ByteBuffer vertexInfos, BlockInfo blockInfo, UV uv_class, float x, float y, float z, String face, TextureAtlas textureAtlas, Block_colors block_colors) throws Exception {
 		//for (int i = 0; i < blockInfo.elements.size(); i++) {
 		for (int i = blockInfo.elements.size() - 1; i >= 0; i--) {
 			BlockElementsInfo elementsInfo = blockInfo.elements.get(i);
@@ -81,8 +81,12 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay") || texture.contains("water")) {
-					color = iColor.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				if (texture.contains("grass_block_side_overlay")) {
+					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("water")) {
+					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("leaves")) {
+					color = block_colors.foliage_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				}
 				float[] uv = uv_class.getUV(elementsInfo.faces.east.uv, texture, textureAtlas);
 				float[] vertexNormal = { 1f, 0f, 0f };
@@ -98,8 +102,12 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay") || texture.contains("water")) {
-					color = iColor.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				if (texture.contains("grass_block_side_overlay")) {
+					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("water")) {
+					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("leaves")) {
+					color = block_colors.foliage_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				}
 				float[] uv = uv_class.getUV(elementsInfo.faces.west.uv, texture, textureAtlas);
 				float[] vertexNormal = { -1f, 0f, 0f };
@@ -115,8 +123,12 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay") || texture.contains("water")) {
-					color = iColor.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				if (texture.contains("grass_block_side_overlay")) {
+					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("water")) {
+					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("leaves")) {
+					color = block_colors.foliage_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				}
 				float[] uv = uv_class.getUV(elementsInfo.faces.south.uv, texture, textureAtlas);
 				float[] vertexNormal = { 0f, 0f, 1f };
@@ -132,8 +144,12 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay") || texture.contains("water")) {
-					color = iColor.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				if (texture.contains("grass_block_side_overlay")) {
+					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("water")) {
+					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("leaves")) {
+					color = block_colors.foliage_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				}
 				float[] uv = uv_class.getUV(elementsInfo.faces.north.uv, texture, textureAtlas);
 				float[] vertexNormal = { 0f, 0f, -1f };
@@ -149,8 +165,12 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_top") || texture.contains("water")) {
-					color = iColor.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				if (texture.contains("grass_block_top")) {
+					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("water")) {
+					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("leaves")) {
+					color = block_colors.foliage_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				}
 				float[] uv = uv_class.getUV(elementsInfo.faces.up.uv, texture, textureAtlas);
 				float[] vertexNormal = { 0f, 1f, 0f };
@@ -167,7 +187,9 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
 				if (texture.contains("water")) {
-					color = iColor.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+				} else if (texture.contains("leaves")) {
+					color = block_colors.foliage_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				}
 				float[] uv = uv_class.getUV(elementsInfo.faces.down.uv, texture, textureAtlas);
 				float[] vertexNormal = { 0f, -1f, 0f };

@@ -25,8 +25,7 @@ import gameManager.DebugScreen;
 import gameManager.Tick;
 import engine.render.RenderChunkDecider;
 import engine.render.Renderer;
-import utils.color.Grass_color;
-import utils.color.Water_color;
+import utils.color.block_colors.Block_colors;
 import utils.math.random.IRandom;
 import utils.math.random.XoroshiroRandom;
 
@@ -41,8 +40,7 @@ public final class Data {
 	public UV				uv = null;
 	public Font				font = null;
 	public Worldgen			worldgen = null;
-	public Grass_color		grass_color = null;
-	public Water_color		water_color = null;
+	public Block_colors		block_colors = null;
 	public Physics_engine	physics_engine = null;
 	public Window			window = null;
 	public FPScounter		fpsCounter = null;

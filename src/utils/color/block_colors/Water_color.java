@@ -1,8 +1,10 @@
-package utils.color;
+package utils.color.block_colors;
 
 import org.json.JSONObject;
 
 import data.Data;
+import utils.color.HexColor;
+import utils.color.IColor;
 
 public final class Water_color implements IColor {
 	private final Data	data;

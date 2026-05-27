@@ -1,10 +1,12 @@
-package utils.color;
+package utils.color.block_colors;
 
 import org.json.JSONObject;
 import org.lwjgl.system.MemoryUtil;
 
 import data.Data;
 import data.info.TextureInfo;
+import utils.color.HexColor;
+import utils.color.IColor;
 
 public final class Grass_color implements IColor {
 	private final Data			data;

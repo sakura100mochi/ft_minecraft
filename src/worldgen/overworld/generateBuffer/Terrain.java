@@ -95,17 +95,17 @@ public final class Terrain {
 		BlockInfo blockInfo = this.data.parser.models.block.getBlockInfo(blockId);
 
 		if (faceIndex == 0) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "East", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "East", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 1) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "West", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "West", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 2) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "South", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "South", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 3) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "North", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "North", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 4) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "Up", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "Up", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 5) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "Down", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "Down", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		}
 	}
 
