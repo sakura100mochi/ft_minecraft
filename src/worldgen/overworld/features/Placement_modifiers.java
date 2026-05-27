@@ -281,11 +281,40 @@ public final class Placement_modifiers {
 	}
 
 	private void environment_scan(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		//String direction_of_search = json.getString("direction_of_search");
-		//int max_steps = json.getInt("max_steps");
-		//JSONObject target_condition = json.getJSONObject("target_condition");
-		//JSONObject allowed_search_condition = json.getJSONObject("allowed_search_condition");
-		System.out.println("environment_scan is not implemented yet");
+		String direction_of_search = json.getString("direction_of_search");
+		int max_steps = json.getInt("max_steps");
+		JSONObject target_condition = json.getJSONObject("target_condition");
+		JSONObject allowed_search_condition = json.optJSONObject("allowed_search_condition", null);
+		int direction = 0;
+		if (direction_of_search.equals("up")) {
+			direction = 1;
+		} else if (direction_of_search.equals("down")) {
+			direction = -1;
+		} else {
+			throw new Exception("Invalid direction_of_search: " + direction_of_search);
+		}
+		List<Integer> result = new ArrayList<>(positions_list.size());
+		for (int i = 0; i < positions_list.size(); i += 3) {
+			int x = positions_list.get(i);
+			int y = positions_list.get(i + 1);
+			int z = positions_list.get(i + 2);
+			int steps = 0;
+			while (steps < max_steps) {
+				if (this.block_predicate.block_predicate_filter(x, y, z, target_condition) == true) {
+					result.add(x);
+					result.add(y);
+					result.add(z);
+					break;
+				}
+				if (allowed_search_condition != null && this.block_predicate.block_predicate_filter(x, y, z, allowed_search_condition) == false) {
+					break;
+				}
+				y += direction;
+				steps++;
+			}
+		}
+		positions_list.clear();
+		positions_list.addAll(result);
 	}
 
 	private void count_on_every_layer(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
