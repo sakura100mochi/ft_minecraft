@@ -17,6 +17,7 @@ import utils.math.Position2D;
 import utils.math.noise.PerlinNoise;
 import worldgen.overworld.biome.Biome;
 import worldgen.provider.Provider;
+import utils.registry.Registry;
 
 public final class Placement_modifiers {
 	private final Data				data;
@@ -25,6 +26,7 @@ public final class Placement_modifiers {
 	private final int				min_y;
 	private final int				terrainHeight;
 	private final PerlinNoise		noise;
+	private final int				airId;
 
 	protected Placement_modifiers(Data data, Biome biome) throws Exception {
 		this.data = data;
@@ -33,6 +35,7 @@ public final class Placement_modifiers {
 		this.min_y = this.data.parser.worldgen.overworld.min_y;
 		this.terrainHeight = this.data.parser.worldgen.overworld.terrainHeight;
 		this.noise = new PerlinNoise(this.data.random);
+		this.airId = Registry.getId("minecraft:air");
 	}
 
 	protected IFeatureInfo parse(JSONObject json) throws Exception {
@@ -286,7 +289,22 @@ public final class Placement_modifiers {
 	}
 
 	private void count_on_every_layer(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		System.out.println("count_on_every_layer is not implemented yet");
+		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
+		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
+		int count = Provider.getIntProvider(json.get("count"), this.data.random);
+		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
+		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
+		BitSet base_liquid = this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
+		int[] surface = this.data.worldgenThread.getSurface(chunk_x, chunk_z, base_terrain, base_liquid);
+		int[] applied_carvers = this.data.worldgenThread.getAppliedCarversCache(chunk_x, chunk_z, surface);
+		List<Integer> layer = getLayer(applied_carvers);
+		for (int y : layer) {
+			for (int j = 0; j < count; j++) {
+				positions_list.add(initial_x);
+				positions_list.add(y + 1);
+				positions_list.add(initial_z);
+			}
+		}
 	}
 
 	private void count(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
@@ -369,5 +387,33 @@ public final class Placement_modifiers {
 		}
 		positions_list.clear();
 		positions_list.addAll(result);
+	}
+
+
+	private List<Integer> getLayer(int[] registries) throws Exception {
+		List<Integer> result = new ArrayList<>();
+		int prev_layer = -2;
+
+		for (int local_y = 0; local_y < this.terrainHeight; local_y++) {
+			boolean is_empty = true;
+			for (int local_x = 0; local_x < SystemSettings.CHUNK_SIZE; local_x++) {
+				for (int local_z = 0; local_z < SystemSettings.CHUNK_SIZE; local_z++) {
+					int index = Calc.getIndex(local_x, local_y, local_z);
+					if (registries[index] != this.airId) {
+						is_empty = false;
+						break;
+					}
+				}
+				if (is_empty == false) {
+					break;
+				}
+			}
+			if (is_empty == true && prev_layer != local_y - 1) {
+				result.add(local_y + this.min_y);
+				prev_layer = local_y;
+			}
+		}
+
+		return result;
 	}
 }
