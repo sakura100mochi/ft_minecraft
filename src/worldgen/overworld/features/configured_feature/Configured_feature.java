@@ -5,24 +5,35 @@ import org.json.JSONObject;
 
 import data.Data;
 import data.info.FeatureInfo;
+import worldgen.overworld.features.Placed_feature;
 
 public final class Configured_feature {
 	private final Data data;
 	private final Tree tree;
+	private final Placed_feature placed_feature;
 
-	public Configured_feature(Data data) throws Exception {
+	public Configured_feature(Data data, Placed_feature placed_feature) throws Exception {
 		this.data = data;
 		this.tree = new Tree(data);
+		this.placed_feature = placed_feature;
 	}
 
-	public void generateConfigured_Feature(FeatureInfo featureInfo) throws Exception {
-		JSONObject json = this.data.parser.worldgen.configured_feature.getJsonObjectFromIdentifier(featureInfo.feature);
+	public void generateConfigured_Feature(FeatureInfo[] placed_feature_infos) throws Exception {
+		for (FeatureInfo featureInfo : placed_feature_infos) {
+			if (featureInfo.positions != null) {
+				this.parse(placed_feature_infos, featureInfo);
+			}
+		}
+	}
+
+	private void parse(FeatureInfo[] featureInfos, FeatureInfo target) throws Exception {
+		JSONObject json = this.data.parser.worldgen.configured_feature.getJsonObjectFromIdentifier(target.feature);
+		if (json == null) {
+			throw new RuntimeException("Configured feature not found: " + target.feature);
+		}
 		String type = json.getString("type");
 		JSONObject config = json.optJSONObject("config", null);
-		parse(type, config, featureInfo);
-	}
 
-	private void parse(String type, JSONObject config, FeatureInfo featureInfo) throws Exception {
 		switch (type) {
 			case "minecraft:bamboo":
 				break;
@@ -81,7 +92,7 @@ public final class Configured_feature {
 			case "minecraft:random_boolean_selector":
 				break;
 			case "minecraft:random_selector":
-				random_selector(config, featureInfo);
+				random_selector(config, featureInfos, target);
 				break;
 			case "minecraft:random_patch":
 				break;
@@ -106,7 +117,7 @@ public final class Configured_feature {
 			case "minecraft:spring_feature":
 				break;
 			case "minecraft:tree":
-				this.tree.parse(config, featureInfo.positions);
+				this.tree.parse(config, target.positions);
 				break;
 			case "minecraft:twisting_vines":
 				break;
@@ -158,7 +169,7 @@ public final class Configured_feature {
 		}
 	}
 
-	private void random_selector(JSONObject config, FeatureInfo featureInfo) throws Exception {
+	private void random_selector(JSONObject config, FeatureInfo[] featureInfos, FeatureInfo target) throws Exception {
 		String result = null;
 		String default_feature = config.optString("default", null);
 		if (default_feature == null) {
@@ -171,7 +182,7 @@ public final class Configured_feature {
 				JSONObject feature_chance = features.getJSONObject(i);
 				String feature = feature_chance.optString("feature", null);
 				if (feature == null) {
-					feature_chance.getJSONObject("feature").getString("feature");
+					feature = feature_chance.getJSONObject("feature").getString("feature");
 				}
 				float chance = feature_chance.getFloat("chance");
 				float random_value = this.data.random.nextFloat();
@@ -186,6 +197,6 @@ public final class Configured_feature {
 			result = default_feature;
 		}
 
-		generateConfigured_Feature(new FeatureInfo(result, featureInfo.positions));
+		parse(featureInfos, new FeatureInfo(featureInfos[this.placed_feature.getIndex_Placed_feature(result)].feature, target.positions));
 	}
 }

@@ -11,15 +11,11 @@ public final class Features {
 
 	public Features(Data data, Biome biome) throws Exception {
 		this.placed_feature = new Placed_feature(data, biome);
-		this.configured_feature = new Configured_feature(data);
+		this.configured_feature = new Configured_feature(data, this.placed_feature);
 	}
 
 	public void generateFeatures(int chunk_x, int chunk_z) throws Exception {
 		FeatureInfo[] placed_feature_infos = this.placed_feature.generatePlaced_Feature(chunk_x, chunk_z);
-		for (FeatureInfo featureInfo : placed_feature_infos) {
-			if (featureInfo.positions != null) {
-				this.configured_feature.generateConfigured_Feature(featureInfo);
-			}
-		}
+		this.configured_feature.generateConfigured_Feature(placed_feature_infos);
 	}
 }
