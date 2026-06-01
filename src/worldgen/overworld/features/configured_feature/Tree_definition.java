@@ -68,8 +68,8 @@ public final class Tree_definition {
 		//JSONObject root_placer = config.optJSONObject("root_placer", null);
 		//JSONArray decorators = config.optJSONArray("decorators", null);
 
-		List<Configured_featureInfo> result = new ArrayList<>();
 		return (x, y, z) -> {
+			List<Configured_featureInfo> result = new ArrayList<>();
 			if (check_size(minimum_size, trunk_height, x, y, z, ignore_vines) == false) {
 				return null;
 			}

@@ -40,7 +40,7 @@ public final class Placed_feature {
 				return info;
 			}
 		}
-		return null;
+		return placement_modifiers.parse(feature_json);
 	}
 
 	public IPlaced_featureInfo getIPlaced_featureInfoFromFileName(String identifier) throws Exception {

@@ -54,6 +54,12 @@ public final class Placement_modifiers {
 				JSONArray placement = json.getJSONArray("placement");
 				try{
 					List<Integer> positions_list = new ArrayList<>();
+					int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
+					int initial_y = Placement_modifiers.this.min_y;
+					int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
+					positions_list.add(initial_x);
+					positions_list.add(initial_y);
+					positions_list.add(initial_z);
 					for (int i = 0; i < placement.length(); i++) {
 						JSONObject placement_modifier = placement.getJSONObject(i);
 						String type = placement_modifier.getString("type");
@@ -212,7 +218,7 @@ public final class Placement_modifiers {
 		int below_noise = json.getInt("below_noise");
 		int above_noise = json.getInt("above_noise");
 		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
-		int initial_y = 0;
+		int initial_y = this.min_y;
 		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
 		double noise_value = this.noise.sample3D(initial_x, initial_y, initial_z);
 		int count = noise_value < noise_level ? below_noise : above_noise;
@@ -228,7 +234,7 @@ public final class Placement_modifiers {
 		double noise_offset = json.optDouble("noise_offset", 0.0);
 		int noise_to_count_ratio = json.getInt("noise_to_count_ratio");
 		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
-		int initial_y = 0;
+		int initial_y = this.min_y;
 		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
 		double noise_value = this.noise.sample3D(initial_x / noise_factor, initial_y / noise_factor, initial_z / noise_factor);
 		if (noise_value < 0) {
@@ -350,7 +356,7 @@ public final class Placement_modifiers {
 
 	private void count(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
 		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
-		int initial_y = 0;
+		int initial_y = this.min_y;
 		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
 		int count = Provider.getIntProvider(json.get("count"), this.data.random);
 		for (int j = 0; j < count; j++) {

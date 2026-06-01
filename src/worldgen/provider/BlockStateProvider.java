@@ -38,15 +38,15 @@ public final class BlockStateProvider {
 				for (int i = 0; i < entries.length(); i++) {
 					JSONObject entry = entries.getJSONObject(i);
 					int weight = entry.getInt("weight");
-					if (prevWeight < randomWeight && randomWeight <= prevWeight + weight) {
-						JSONObject stateJson = entry.getJSONObject("state");
-						String entryName = stateJson.getString("Name");
-						JSONObject entryProperties = stateJson.optJSONObject("Properties", null);
+					if (prevWeight <= randomWeight && randomWeight < prevWeight + weight) {
+						JSONObject dataJson = entry.getJSONObject("data");
+						String entryName = dataJson.getString("Name");
+						JSONObject entryProperties = dataJson.optJSONObject("Properties", null);
 						return new BlockState(entryName, entryProperties);
 					}
 					prevWeight += weight;
 				}
-				throw new IllegalStateException("worldgen.provider.BlockStateProvider | Failed to select a BlockState from weighted_state_provider");
+				throw new IllegalStateException("worldgen.provider.BlockStateProvider | Failed to select a BlockState from weighted_state_provider totalWeight: " + totalWeight + ", randomWeight: " + randomWeight);
 			case "minecraft:randomized_int_state_provider":
 				String property = json.getString("property");
 				int values = Provider.getIntProvider(json.get("values"), data.random);
