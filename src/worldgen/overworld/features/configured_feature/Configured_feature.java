@@ -3,186 +3,206 @@ package worldgen.overworld.features.configured_feature;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import data.Data;
-import data.info.FeatureInfo;
-import worldgen.overworld.features.Placed_feature;
+import data.info.Identifier;
+import worldgen.overworld.features.placed_feature.IPlaced_featureInfo;
+import worldgen.overworld.features.placed_feature.Placed_feature;
 
 public final class Configured_feature {
-	private final Data data;
-	private final Tree tree;
-	private final Placed_feature placed_feature;
+	private final Data				data;
+	private final Placed_feature	placed_feature;
+	private final Tree_definition	tree_definition;
+	private final Flower			flower;
+	private final Map<String, IConfigured_featureInfo> configured_feature = new HashMap<>();
 
 	public Configured_feature(Data data, Placed_feature placed_feature) throws Exception {
 		this.data = data;
-		this.tree = new Tree(data);
 		this.placed_feature = placed_feature;
-	}
-
-	public void generateConfigured_Feature(FeatureInfo[] placed_feature_infos) throws Exception {
-		for (FeatureInfo featureInfo : placed_feature_infos) {
-			if (featureInfo.positions != null) {
-				this.parse(placed_feature_infos, featureInfo);
-			}
+		this.tree_definition = new Tree_definition(data);
+		this.flower = new Flower(data);
+		String[] allFiles = this.data.parser.worldgen.configured_feature.getAllFiles();
+		for (String file : allFiles) {
+			JSONObject json = this.data.parser.worldgen.configured_feature.getFile(file);
+			this.configured_feature.put(file, parse(json));
 		}
 	}
 
-	private void parse(FeatureInfo[] featureInfos, FeatureInfo target) throws Exception {
-		JSONObject json = this.data.parser.worldgen.configured_feature.getJsonObjectFromIdentifier(target.feature);
-		if (json == null) {
-			throw new RuntimeException("Configured feature not found: " + target.feature);
+	public IConfigured_featureInfo getConfigured_featureInfo(String identifier) throws Exception {
+		String file_name = Identifier.getFileNameFromIdentifier(identifier, ".json");
+		if (file_name != null && this.configured_feature.containsKey(file_name)) {
+			return this.configured_feature.get(file_name);
 		}
+		JSONObject json = this.data.parser.worldgen.configured_feature.getJsonObjectFromIdentifier(identifier);
+		IConfigured_featureInfo info = parse(json);
+		this.configured_feature.put(identifier, info);
+		return info;
+	}
+
+	public IConfigured_featureInfo getConfigured_featureInfo(JSONObject json) throws Exception {
+		if (json != null && this.configured_feature.containsKey(json.toString())) {
+			return this.configured_feature.get(json.toString());
+		}
+		IConfigured_featureInfo info = parse(json);
+		this.configured_feature.put(json.toString(), info);
+		return info;
+	}
+
+	private IConfigured_featureInfo parse(JSONObject json) throws Exception {
 		String type = json.getString("type");
 		JSONObject config = json.optJSONObject("config", null);
 
 		switch (type) {
 			case "minecraft:bamboo":
-				break;
+				return null;
 			case "minecraft:basalt_columns":
-				break;
+				return null;
 			case "minecraft:block_column":
-				break;
+				return null;
 			case "minecraft:block_pile":
-				break;
+				return null;
 			case "minecraft:delta_feature":
-				break;
+				return null;
 			case "minecraft:disk":
-				break;
+				return null;
 			case "minecraft:dripstone_cluster":
-				break;
+				return null;
 			case "minecraft:end_gateway":
-				break;
+				return null;
 			case "minecraft:end_spike":
-				break;
+				return null;
 			case "minecraft:fill_layer":
-				break;
+				return null;
 			case "minecraft:flower":
-				break;
+				return this.flower.parse(config);
 			case "minecraft:fallen_tree":
-				break;
+				return null;
 			case "minecraft:forest_rock":
-				break;
+				return null;
 			case "minecraft:fossil":
-				break;
+				return null;
 			case "minecraft:geode":
-				break;
+				return null;
 			case "minecraft:huge_brown_mushroom":
-				break;
+				return null;
 			case "minecraft:huge_fungus":
-				break;
+				return null;
 			case "minecraft:huge_red_mushroom":
-				break;
+				return null;
 			case "minecraft:iceberg":
-				break;
+				return null;
 			case "minecraft:lake":
-				break;
+				return null;
 			case "minecraft:large_dripstone":
-				break;
+				return null;
 			case "minecraft:multiface_growth":
-				break;
+				return null;
 			case "minecraft:nether_forest_vegetation":
-				break;
+				return null;
 			case "minecraft:netherrack_replace_blobs":
-				break;
+				return null;
 			case "minecraft:no_bonemeal_flower":
-				break;
+				return null;
 			case "minecraft:ore":
-				break;
+				return null;
 			case "minecraft:pointed_dripstone":
-				break;
+				return null;
 			case "minecraft:random_boolean_selector":
-				break;
+				return null;
 			case "minecraft:random_selector":
-				random_selector(config, featureInfos, target);
-				break;
+				return random_selector(config);
 			case "minecraft:random_patch":
-				break;
+				return null;
 			case "minecraft:replace_single_block":
-				break;
+				return null;
 			case "minecraft:root_system":
-				break;
+				return null;
 			case "minecraft:scattered_ore":
-				break;
+				return null;
 			case "minecraft:sculk_patch":
-				break;
+				return null;
 			case "minecraft:seagrass":
-				break;
+				return null;
 			case "minecraft:sea_pickle":
-				break;
+				return null;
 			case "minecraft:simple_block":
-				break;
+				return null;
 			case "minecraft:simple_random_selector":
-				break;
+				return simple_random_selector(config);
 			case "minecraft:spike":
-				break;
+				return null;
 			case "minecraft:spring_feature":
-				break;
+				return null;
 			case "minecraft:tree":
-				this.tree.parse(config, target.positions);
-				break;
+				return this.tree_definition.parse(config);
 			case "minecraft:twisting_vines":
-				break;
+				return null;
 			case "minecraft:underwater_magma":
-				break;
+				return null;
 			case "minecraft:vegetation_patch":
-				break;
+				return null;
 			case "minecraft:waterlogged_vegetation_patch":
-				break;
+				return null;
 			// Configuration-less features
 			case "minecraft:basalt_pillar":
-				break;
+				return null;
 			case "minecraft:blue_ice":
-				break;
+				return null;
 			case "minecraft:bonus_chest":
-				break;
+				return null;
 			case "minecraft:chorus_plant":
-				break;
+				return null;
 			case "minecraft:coral_claw":
-				break;
+				return null;
 			case "minecraft:coral_mushroom":
-				break;
+				return null;
 			case "minecraft:coral_tree":
-				break;
+				return null;
 			case "minecraft:desert_well":
-				break;
+				return null;
 			case "minecraft:end_island":
-				break;
+				return null;
 			case "minecraft:end_platform":
-				break;
+				return null;
 			case "minecraft:freeze_top_layer":
-				break;
+				return null;
 			case "minecraft:glowstone_blob":
-				break;
+				return null;
 			case "minecraft:kelp":
-				break;
+				return null;
 			case "minecraft:monster_room":
-				break;
+				return null;
 			case "minecraft:no_op":
-				break;
+				return null;
 			case "minecraft:vines":
-				break;
+				return null;
 			case "minecraft:void_start_platform":
-				break;
+				return null;
 			case "minecraft:weeping_vines":
-				break;
+				return null;
 			default:
-				throw new RuntimeException("Unsupported configured feature type: " + type);
+				//throw new RuntimeException("Unsupported configured feature type: " + type + " in config: " + json);
+				return null;
 		}
 	}
 
-	private void random_selector(JSONObject config, FeatureInfo[] featureInfos, FeatureInfo target) throws Exception {
+	private IConfigured_featureInfo random_selector(JSONObject config) throws Exception {
 		String result = null;
+		JSONObject default_feature_json = config.optJSONObject("default", null);
 		String default_feature = config.optString("default", null);
-		if (default_feature == null) {
-			default_feature = config.getJSONObject("default").getString("feature");
+		if (default_feature_json != null) {
+			default_feature = default_feature_json.getString("feature");
 		}
 		JSONArray features = config.optJSONArray("features", null);
-
 		if (features != null) {
 			for (int i = 0; i < features.length(); i++) {
 				JSONObject feature_chance = features.getJSONObject(i);
+				JSONObject feature_json = feature_chance.optJSONObject("feature", null);
 				String feature = feature_chance.optString("feature", null);
-				if (feature == null) {
-					feature = feature_chance.getJSONObject("feature").getString("feature");
+				if (feature_json != null) {
+					feature = feature_json.getString("feature");
 				}
 				float chance = feature_chance.getFloat("chance");
 				float random_value = this.data.random.nextFloat();
@@ -197,6 +217,47 @@ public final class Configured_feature {
 			result = default_feature;
 		}
 
-		parse(featureInfos, new FeatureInfo(featureInfos[this.placed_feature.getIndex_Placed_feature(result)].feature, target.positions));
+		IPlaced_featureInfo feature_info = this.placed_feature.getIPlaced_featureInfoFromFileName(result);
+		if (feature_info == null) {
+			feature_info = this.placed_feature.getIPlaced_featureInfo(result);
+			if (feature_info == null) {
+				IConfigured_featureInfo configured_feature_info = this.getConfigured_featureInfo(result);
+				if (configured_feature_info == null) {
+					System.out.println("Could not find placed feature for random_selector with feature: " + result);
+					return null;
+				}
+				return configured_feature_info;
+			}
+		}
+		if (feature_info.getFeatureJSON() != null) {
+			return this.getConfigured_featureInfo(feature_info.getFeatureJSON());
+		}
+		return this.getConfigured_featureInfo(feature_info.getFeatureName());
+	}
+
+	private IConfigured_featureInfo simple_random_selector(JSONObject config) throws Exception {
+		String features = config.optString("features", null);
+		JSONObject features_json = config.optJSONObject("features", null);
+		JSONArray features_array = config.optJSONArray("features", null);
+		if (features_array != null) {
+			int index = this.data.random.nextInt(features_array.length());
+			features_json = features_array.getJSONObject(index);
+		}
+		if (features_json != null) {
+			IPlaced_featureInfo feature_info = this.placed_feature.getIPlaced_featureInfo(features_json);
+			if (feature_info == null) {
+				//System.out.println("Could not find placed feature for simple_random_selector with features: " + features_json);
+				return null;
+			}
+			if (feature_info.getFeatureJSON() != null) {
+				return this.getConfigured_featureInfo(feature_info.getFeatureJSON());
+			}
+			return this.getConfigured_featureInfo(feature_info.getFeatureName());
+		}
+		IPlaced_featureInfo feature_info = this.placed_feature.getIPlaced_featureInfo(features);
+		if (feature_info.getFeatureJSON() != null) {
+			return this.getConfigured_featureInfo(feature_info.getFeatureJSON());
+		}
+		return this.getConfigured_featureInfo(feature_info.getFeatureName());
 	}
 }

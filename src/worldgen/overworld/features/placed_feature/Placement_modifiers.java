@@ -1,4 +1,4 @@
-package worldgen.overworld.features;
+package worldgen.overworld.features.placed_feature;
 
 import java.util.List;
 import java.util.Map;
@@ -9,8 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import data.Data;
-import data.info.FeatureInfo;
-import data.info.IFeatureInfo;
 import settings.SystemSettings;
 import utils.math.Calc;
 import utils.math.Position2D;
@@ -38,79 +36,93 @@ public final class Placement_modifiers {
 		this.airId = Registry.getId("minecraft:air");
 	}
 
-	protected IFeatureInfo parse(JSONObject json) throws Exception {
-		String feature = json.getString("feature");
-		JSONArray placement = json.getJSONArray("placement");
-		return (chunk_x, chunk_z) -> {
-			try{
-				List<Integer> positions_list = new ArrayList<>();
-				for (int i = 0; i < placement.length(); i++) {
-					JSONObject placement_modifier = placement.getJSONObject(i);
-					String type = placement_modifier.getString("type");
-					switch (type) {
-						case "minecraft:biome":
-							biome(chunk_x, chunk_z, feature, positions_list);
-							break;
-						case "minecraft:block_predicate_filter":
-							block_predicate_filter(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:carving_mask":
-							carving_mask(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:count":
-							count(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:count_on_every_layer":
-							count_on_every_layer(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:environment_scan":
-							environment_scan(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:fixed_placement":
-							fixed_placement(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:height_range":
-							height_range(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:heightmap":
-							heightmap(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:in_square":
-							in_square(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:noise_based_count":
-							noise_based_count(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:noise_threshold_count":
-							noise_threshold_count(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:random_offset":
-							random_offset(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:rarity_filter":
-							rarity_filter(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:surface_relative_threshold_filter":
-							surface_relative_threshold_filter(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						case "minecraft:surface_water_depth_filter":
-							surface_water_depth_filter(chunk_x, chunk_z, positions_list, placement_modifier);
-							break;
-						default:
-							throw new Exception("Unknown placement modifier type: " + type);
-					}
-				}
-				if (positions_list.size() == 0) {
-					return new FeatureInfo(feature, null);
-				}
-				int[] positions = new int[positions_list.size()];
-				for (int i = 0; i < positions_list.size(); i++) {
-					positions[i] = positions_list.get(i);
-				}
-				return new FeatureInfo(feature, positions);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+	protected IPlaced_featureInfo parse(JSONObject json) throws Exception {
+		return new IPlaced_featureInfo() {
+			@Override
+			public String getFeatureName() {
+				return json.optString("feature", null);
 			}
+
+			@Override
+			public JSONObject getFeatureJSON() {
+				return json.optJSONObject("feature", null);
+			}
+
+			@Override
+			public int[] getPosition(int chunk_x, int chunk_z) {
+				String feature = json.getString("feature");
+				JSONArray placement = json.getJSONArray("placement");
+				try{
+					List<Integer> positions_list = new ArrayList<>();
+					for (int i = 0; i < placement.length(); i++) {
+						JSONObject placement_modifier = placement.getJSONObject(i);
+						String type = placement_modifier.getString("type");
+						switch (type) {
+							case "minecraft:biome":
+								biome(chunk_x, chunk_z, feature, positions_list);
+								break;
+							case "minecraft:block_predicate_filter":
+								block_predicate_filter(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:carving_mask":
+								carving_mask(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:count":
+								count(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:count_on_every_layer":
+								count_on_every_layer(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:environment_scan":
+								environment_scan(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:fixed_placement":
+								fixed_placement(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:height_range":
+								height_range(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:heightmap":
+								heightmap(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:in_square":
+								in_square(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:noise_based_count":
+								noise_based_count(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:noise_threshold_count":
+								noise_threshold_count(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:random_offset":
+								random_offset(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:rarity_filter":
+								rarity_filter(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:surface_relative_threshold_filter":
+								surface_relative_threshold_filter(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							case "minecraft:surface_water_depth_filter":
+								surface_water_depth_filter(chunk_x, chunk_z, positions_list, placement_modifier);
+								break;
+							default:
+								throw new Exception("Unknown placement modifier type: " + type);
+						}
+					}
+					if (positions_list.size() == 0) {
+						return null;
+					}
+					int[] positions = new int[positions_list.size()];
+					for (int i = 0; i < positions_list.size(); i++) {
+						positions[i] = positions_list.get(i);
+					}
+					return positions;
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+			
 		};
 	}
 

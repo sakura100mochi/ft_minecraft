@@ -14,4 +14,12 @@ public final class Configured_feature extends Aparser {
 		String fileName = Identifier.getFileNameFromIdentifier(identifier, ".json");
 		return this.read_json(fileName, true);
 	}
+
+	public JSONObject getFile(String fileName) throws Exception {
+		return this.read_json(fileName, true);
+	}
+
+	public String[] getAllFiles() {
+		return this.files;
+	}
 }

@@ -1,4 +1,4 @@
-package worldgen.overworld.features;
+package worldgen.overworld.features.placed_feature;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

@@ -1,9 +1,9 @@
 package worldgen.overworld.features.configured_feature;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-//import org.json.JSONArray;
 import org.json.JSONObject;
 
 import data.Data;
@@ -13,26 +13,24 @@ import worldgen.provider.Provider;
 import utils.registry.Registry;
 import utils.math.Calc;
 
-public final class Tree {
+public final class Tree_definition {
 	private final Data		data;
 	private final Integer[] replaceable_by_trees;
-	private final int		terrainHeight;
 	private final int		min_y;
 	private final int		airId;
 
-	protected Tree(Data data) {
+	protected Tree_definition(Data data) {
 		this.data = data;
 		List<String> identifiers = data.parser.tags.getBlockListFromTag("block/", "replaceable_by_trees.json");
 		this.replaceable_by_trees = new Integer[identifiers.size()];
 		for (int i = 0; i < identifiers.size(); i++) {
 			this.replaceable_by_trees[i] = Registry.getId(identifiers.get(i));
 		}
-		this.terrainHeight = data.parser.worldgen.overworld.terrainHeight;
 		this.min_y = data.parser.worldgen.overworld.min_y;
 		this.airId = Registry.getId("minecraft:air");
 	}
 
-	protected void parse(JSONObject config, int[] positions) throws Exception {
+	protected IConfigured_featureInfo parse(JSONObject config) throws Exception {
 		boolean ignore_vines = config.optBoolean("ignore_vines", false);
 		JSONObject below_trunk_provider = config.optJSONObject("below_trunk_provider", null);
 		if (below_trunk_provider == null) {
@@ -70,19 +68,18 @@ public final class Tree {
 		//JSONObject root_placer = config.optJSONObject("root_placer", null);
 		//JSONArray decorators = config.optJSONArray("decorators", null);
 
-		for (int i = 0; i < positions.length; i += 3) {
-			int x = positions[i];
-			int y = positions[i + 1];
-			int z = positions[i + 2];
+		List<Configured_featureInfo> result = new ArrayList<>();
+		return (x, y, z) -> {
 			if (check_size(minimum_size, trunk_height, x, y, z, ignore_vines) == false) {
-				continue;
+				return null;
 			}
-			placeFoliage(foliage_placer, foliage_provider, x, y, z, trunk_height);
-			placeTrunk(trunk_placer, trunk_provider, x, y, z, trunk_height);
-		}
+			placeFoliage(foliage_placer, foliage_provider, x, y, z, trunk_height, result);
+			placeTrunk(trunk_placer, trunk_provider, x, y, z, trunk_height, result);
+			return result;
+		};
 	}
 
-	private void placeFoliage(JSONObject foliage_placer, JSONObject foliage_provider, int x, int y, int z, int trunk_height) throws Exception {
+	private void placeFoliage(JSONObject foliage_placer, JSONObject foliage_provider, int x, int y, int z, int trunk_height, List<Configured_featureInfo> result) throws Exception {
 		String foliage_placer_type = foliage_placer.getString("type");
 		switch (foliage_placer_type) {
 			case "minecraft:blob_foliage_placer":
@@ -94,7 +91,8 @@ public final class Tree {
 						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
 							if (Calc.distance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius) {
 								BlockState foliage = BlockStateProvider.getBlockState(this.data, foliage_provider, x_pos, y_pos, z_pos);
-								place_transparency_block(x_pos, y_pos, z_pos, foliage);
+								int id = Registry.getId(foliage.identifier);
+								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
 							}
 						}
 					}
@@ -125,13 +123,14 @@ public final class Tree {
 		}
 	}
 
-	private void placeTrunk(JSONObject trunk_placer, JSONObject trunk_provider, int x, int y, int z, int trunk_height) throws Exception {
+	private void placeTrunk(JSONObject trunk_placer, JSONObject trunk_provider, int x, int y, int z, int trunk_height, List<Configured_featureInfo> result) throws Exception {
 		String trunk_placer_type = trunk_placer.getString("type");
 		switch (trunk_placer_type) {
 			case "minecraft:straight_trunk_placer":
 				for (int height = 0; height < trunk_height; height++) {
 					BlockState trunk = BlockStateProvider.getBlockState(this.data, trunk_provider, x, y + height, z);
-					place_Block(x, y + height, z, trunk);
+					int id = Registry.getId(trunk.identifier);
+					result.add(new Configured_featureInfo(x, y + height, z, id, false));
 				}
 				break;
 			case "minecraft:forking_trunk_placer":
@@ -141,12 +140,14 @@ public final class Tree {
 					for (int offset_x = -1; offset_x < 1; offset_x++) {
 						for (int offset_z = -1; offset_z < 1; offset_z++) {
 							BlockState trunk = BlockStateProvider.getBlockState(this.data, trunk_provider, x + offset_x, y + height, z + offset_z);
-							place_Block(x + offset_x, y + height, z + offset_z, trunk);
+							int id = Registry.getId(trunk.identifier);
+							result.add(new Configured_featureInfo(x + offset_x, y + height, z + offset_z, id, false));
 						}
 					}
 				}
 				BlockState trunk = BlockStateProvider.getBlockState(this.data, trunk_provider, x, y + trunk_height, z);
-				place_Block(x, y + trunk_height, z, trunk);
+				int id = Registry.getId(trunk.identifier);
+				result.add(new Configured_featureInfo(x, y + trunk_height, z, id, false));
 				break;
 			case "minecraft:mega_jungle_trunk_placer":
 				break;
@@ -163,38 +164,6 @@ public final class Tree {
 			default:
 				throw new IllegalArgumentException("Invalid trunk_placer type");
 		}
-	}
-
-	private void place_transparency_block(int x, int y, int z, BlockState state) throws Exception {
-		if (y < this.min_y || y >= this.min_y + this.terrainHeight) {
-			return;
-		}
-		int chunk_x = x >> 4;
-		int chunk_z = z >> 4;
-		int[] transparency = this.data.worldgenThread.getTransparency(chunk_x, chunk_z);
-		int local_x = x & 15;
-		int local_y = y - this.min_y;
-		int local_z = z & 15;
-		int index = Calc.getIndex(local_x, local_y, local_z);
-		transparency[index] = Registry.getId(state.identifier);
-	}
-
-	private void place_Block(int x, int y, int z, BlockState state) throws Exception {
-		if (y < this.min_y || y >= this.min_y + this.terrainHeight) {
-			return;
-		}
-		int chunk_x = x >> 4;
-		int chunk_z = z >> 4;
-		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
-		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
-		BitSet base_liquid = this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
-		int[] surface = this.data.worldgenThread.getSurface(chunk_x, chunk_z, base_terrain, base_liquid);
-		int[] appliedCarvers = this.data.worldgenThread.getAppliedCarversCache(chunk_x, chunk_z, surface);
-		int local_x = x & 15;
-		int local_y = y - this.min_y;
-		int local_z = z & 15;
-		int index = Calc.getIndex(local_x, local_y, local_z);
-		appliedCarvers[index] = Registry.getId(state.identifier);
 	}
 
 	private boolean check_size(JSONObject minimum_size, int trunk_height, int x, int y, int z, boolean ignore_vines) throws Exception {
