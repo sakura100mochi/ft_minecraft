@@ -45,6 +45,12 @@ public final class Terrain {
 		return makeBuffer(chunk_x, chunk_z, culled, registries);
 	}
 
+	public ByteBuffer generateBufferWithoutCulling(int chunk_x, int chunk_z, int[] registries) throws Exception {
+		long[] terrain = terrainOrNot(registries);
+		long[] info = faceAdd(chunk_x, chunk_z, terrain);
+		return makeBuffer(chunk_x, chunk_z, info, registries);
+	}
+
 	private long[] terrainOrNot(int[] registries) {
 		if (registries == null) {
 			return this.emptyChunk;
@@ -148,5 +154,22 @@ public final class Terrain {
 		}
 	
 		return culledTerrain;
+	}
+
+	private long[] faceAdd(int chunk_x, int chunk_z, long[] terrain) throws Exception {
+		long[] faceAdded = new long[this.LONGS_PER_CHUNK * 6];
+
+		for (int i = 0; i < terrain.length; i++) {
+			long current = terrain[i];
+
+			faceAdded[i]                            = current;
+			faceAdded[i + this.LONGS_PER_CHUNK]     = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 2] = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 3] = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 4] = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 5] = current;
+		}
+	
+		return faceAdded;
 	}
 }

@@ -106,7 +106,7 @@ public final class WorldgenThread extends Thread {
 			this.data.chunkManager.addUpdateEvent(chunk, "terrain", terrain);
 			ByteBuffer water = this.waterGenerator.generateBuffer(chunk_x, chunk_z, getRegistries(chunk_x, chunk_z));
 			this.data.chunkManager.addUpdateEvent(chunk, "water", water);
-			ByteBuffer transparency = this.terrainGenerator.generateBuffer(chunk_x, chunk_z, getTransparency(chunk_x, chunk_z));
+			ByteBuffer transparency = this.terrainGenerator.generateBufferWithoutCulling(chunk_x, chunk_z, getTransparency(chunk_x, chunk_z));
 			this.data.chunkManager.addUpdateEvent(chunk, "transparency", transparency);
 			this.currentlyGenerating.remove(chunk);
 		}
