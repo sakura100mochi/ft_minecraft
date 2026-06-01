@@ -9,16 +9,25 @@ import data.Data;
 import data.info.models.block.BlockInfo;
 import data.info.models.block.elements.BlockElementsInfo;
 import utils.registry.Registry;
+import data.info.BlockState;
 
 public final class Block_predicate {
 	private final Data data;
 	private final int min_y;
 	private final int terrainHeight;
+	private final int dirtId;
+	private final int grassBlockId;
+	private final int podzolId;
+	private final int coarseDirtId;
 
 	protected Block_predicate(Data data) {
 		this.data = data;
 		this.min_y = data.parser.worldgen.overworld.min_y;
 		this.terrainHeight = data.parser.worldgen.overworld.terrainHeight;
+		this.dirtId = Registry.getId("minecraft:dirt");
+		this.grassBlockId = Registry.getId("minecraft:grass_block");
+		this.podzolId = Registry.getId("minecraft:podzol");
+		this.coarseDirtId = Registry.getId("minecraft:coarse_dirt");
 	}
 
 	protected boolean block_predicate_filter(int x, int y, int z, JSONObject json) throws Exception {
@@ -254,10 +263,35 @@ public final class Block_predicate {
 				}
 				return false;
 			case "minecraft:would_survive":
-				System.out.println("minecraft:would_survive is not implemented yet");
-				return true;
+				offset_x = 0;
+				offset_y = 0;
+				offset_z = 0;
+				JSONArray offset = json.optJSONArray("offset", null);
+				if (offset != null) {
+					offset_x = offset.getInt(0);
+					offset_y = offset.getInt(1);
+					offset_z = offset.getInt(2);
+				}
+				JSONObject state = json.getJSONObject("state");
+				BlockState blockState = new BlockState(state);
+				return would_survive(x + offset_x, y + offset_y, z + offset_z, blockState);
 			default:
 				throw new RuntimeException("Unknown block predicate type: " + type);
 		}
+	}
+
+	private boolean would_survive(int x, int y, int z, BlockState blockState) throws Exception {
+		List<String> tagAndFileName = this.data.parser.tags.getTagAndFileNameFromIdentifier(blockState.identifier);
+		int below_blockId = this.data.worldgenThread.getBlockRegistryId(x, y - 1, z);
+		for (String tag : tagAndFileName) {
+			if (tag.contains("saplings") == true) {
+				if (below_blockId == this.dirtId || below_blockId == this.grassBlockId || below_blockId == this.podzolId || below_blockId == this.coarseDirtId) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		throw new RuntimeException("Unknown block for would_survive: " + blockState.identifier + ", tags: " + tagAndFileName);
 	}
 }
