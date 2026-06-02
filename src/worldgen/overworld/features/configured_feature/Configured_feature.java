@@ -15,12 +15,16 @@ import worldgen.overworld.features.placed_feature.Placed_feature;
 import worldgen.provider.BlockStateProvider;
 import utils.registry.Registry;
 import data.info.BlockState;
+import utils.math.Calc;
 
 public final class Configured_feature {
 	private final Data				data;
 	private final Placed_feature	placed_feature;
 	private final Tree_definition	tree_definition;
 	private final Map<String, IConfigured_featureInfo> configured_feature = new HashMap<>();
+	private final int min_y;
+	private final int dirtId;
+	private final int grass_blockId;
 
 	public Configured_feature(Data data, Placed_feature placed_feature) throws Exception {
 		this.data = data;
@@ -31,6 +35,9 @@ public final class Configured_feature {
 			JSONObject json = this.data.parser.worldgen.configured_feature.getFile(file);
 			this.configured_feature.put(file, parse(json));
 		}
+		this.min_y = this.data.parser.worldgen.overworld.min_y;
+		this.dirtId = Registry.getId("minecraft:dirt");
+		this.grass_blockId = Registry.getId("minecraft:grass_block");
 	}
 
 	public IConfigured_featureInfo getConfigured_featureInfo(String identifier) throws Exception {
@@ -303,6 +310,9 @@ public final class Configured_feature {
 		return (x, y, z) -> {
 			try {
 				BlockState state = BlockStateProvider.getBlockState(this.data, to_place, x, y, z);
+				if (checkState(state, x, y, z) == false) {
+					return null;
+				}
 				int id = Registry.getId(state.identifier);
 				return List.of(new Configured_featureInfo(x, y, z, id, true));
 			} catch (Exception e) {
@@ -336,7 +346,7 @@ public final class Configured_feature {
 				int new_z = z + this.data.random.nextInt(xz_spread * 2 + 1) - xz_spread;
 				if (finalConfig_info == null && id != null) {
 					result.add(new Configured_featureInfo(new_x, new_y, new_z, id, true));
-				} else {
+				} else if (finalConfig_info != null && finalConfig_info.getConfigured_FeatureInfo(new_x, new_y, new_z) != null) {
 					result.addAll(finalConfig_info.getConfigured_FeatureInfo(new_x, new_y, new_z));
 				}
 			}
@@ -367,5 +377,33 @@ public final class Configured_feature {
 			return this.getConfigured_featureInfo(feature_info.getFeatureJSON());
 		}
 		return this.getConfigured_featureInfo(feature_info.getFeatureName());
+	}
+
+	private boolean checkState(BlockState state, int x, int y, int z) throws Exception {
+		if (state == null || state.identifier == null) {
+			return false;
+		}
+		List<String> tagAndFileName = this.data.parser.tags.getTagAndFileNameFromIdentifier(state.identifier);
+		for (String tag : tagAndFileName) {
+			if (tag.contains("flowers")) {
+				int chunk_x = x >> 4;
+				int chunk_z = z >> 4;
+				int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
+				int local_x = x & 15;
+				int local_y = y - this.min_y;
+				int local_z = z & 15;
+				if (local_y <= 0) {
+					return false;
+				}
+				int index = Calc.getIndex(local_x, local_y - 1, local_z);
+				int belowId = registries[index];
+				if (belowId == this.dirtId || belowId == this.grass_blockId) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }
