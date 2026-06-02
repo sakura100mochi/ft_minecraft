@@ -9,6 +9,7 @@ import java.util.Map;
 import data.Data;
 import data.info.Identifier;
 import utils.registry.Registry;
+import worldgen.overworld.Overworld;
 
 public final class Carvers {
 	private final Data			data;
@@ -26,13 +27,21 @@ public final class Carvers {
 		this.airId = Registry.getId("minecraft:air");
 	}
 
-	public void generateCarvers(int chunk_x, int chunk_z) throws Exception {
+	public void generateCarvers(int chunk_x, int chunk_z, int[] registries) throws Exception {
+		if ((registries[0] & Overworld.FLAG_CARVERS) != 0) {
+			return;
+		}
+		registries[0] |= Overworld.FLAG_CARVERS;
 		this.cave.generateCave(chunk_x, chunk_z);
 		this.canyon.generateCanyon(chunk_x, chunk_z);
 		this.cave_extra_underground.generateCave(chunk_x, chunk_z);
 	}
 
-	public int[] applyCarvers(int[] registries, int chunk_x, int chunk_z) throws Exception {
+	public void generateAppliedCarversCache(int chunk_x, int chunk_z, int[] registries) throws Exception {
+		if ((registries[0] & Overworld.FLAG_APPLIED_CARVERS) != 0) {
+			return;
+		}
+		registries[0] |= Overworld.FLAG_APPLIED_CARVERS;
 		for (String replaceable : replaceableBlocksCache.keySet()) {
 			List<Integer> replaceable_blocks = replaceableBlocksCache.get(replaceable);
 			BitSet cave = this.data.worldgenThread.getCarvers(replaceable, chunk_x, chunk_z);
@@ -44,7 +53,6 @@ public final class Carvers {
 				}
 			}
 		}
-		return registries;
 	}
 
 	protected static boolean isInEllipsoid(int x, int y, int z, int center_x, int center_y, int center_z, float xz_radius, float y_radius) {

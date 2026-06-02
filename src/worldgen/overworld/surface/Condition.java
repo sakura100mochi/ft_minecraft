@@ -13,6 +13,7 @@ import worldgen.overworld.biome.Biome;
 import utils.math.noise.INoise;
 import utils.math.noise.OctaveNoise;
 import utils.math.Calc;
+import utils.registry.Registry;
 
 public final class Condition {
 	private final Data			data;
@@ -23,6 +24,7 @@ public final class Condition {
 	private final int			sea_level;
 	private final INoise		surface_secondary_noise;
 	private static final Map<String, INoise>	noise_threshold_cache = new HashMap<>();
+	private final int			airId;
 
 	protected Condition(Data data, Biome biome) throws Exception {
 		this.data = data;
@@ -33,6 +35,7 @@ public final class Condition {
 		this.sea_level = data.parser.worldgen.overworld.sea_level;
 		JSONObject surface_secondary_json = this.data.parser.worldgen.noise.getFile("surface_secondary.json");
 		this.surface_secondary_noise = new OctaveNoise(this.data.random, surface_secondary_json);
+		this.airId = Registry.getId("minecraft:air");
 	}
 
 	protected ICondition parse(JSONObject if_true) throws Exception {
@@ -84,27 +87,43 @@ public final class Condition {
     			return (x, y, z) -> !inner.condition(x, y, z);
 			case "minecraft:steep":
 				return (x, y, z) -> {
-					int chunk_x = x >> 4;
-					int chunk_z = z >> 4;
-					int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
-					int local_x = x & 15;
-					int local_z = z & 15;
-					int myHeight = height_map[local_x][local_z];
-					
-					int northZ = local_z - 1;
-					if (northZ < 0) {
-						height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z - 1, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z - 1), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
-						northZ += 16;
+					try {
+						int chunk_x = x >> 4;
+						int chunk_z = z >> 4;
+						int[] registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z);
+						if (registries == null) {
+							return false;
+						}
+						int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, registries);
+						int local_x = x & 15;
+						int local_z = z & 15;
+						int myHeight = height_map[local_x][local_z];
+						
+						int northZ = local_z - 1;
+						if (northZ < 0) {
+							registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z - 1);
+							if (registries == null) {
+								return false;
+							}
+							height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z - 1, registries);
+							northZ += 16;
+						}
+						int northHeight = height_map[local_x][northZ];
+						int eastX = local_x + 1;
+						if (eastX >= 16) {
+							registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x + 1, chunk_z);
+							if (registries == null) {
+								return false;
+							}
+							height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x + 1, chunk_z, registries);
+							eastX -= 16;
+						}
+						int eastHeight = height_map[eastX][local_z];
+						
+						return (Math.abs(myHeight - northHeight) > 3) || (Math.abs(myHeight - eastHeight) > 3);
+					} catch (Exception e) {
+						throw new RuntimeException("Exception in steep condition: ", e);
 					}
-					int northHeight = height_map[local_x][northZ];
-					int eastX = local_x + 1;
-					if (eastX >= 16) {
-						height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x + 1, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x + 1, chunk_z), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
-						eastX -= 16;
-					}
-					int eastHeight = height_map[eastX][local_z];
-					
-					return (Math.abs(myHeight - northHeight) > 3) || (Math.abs(myHeight - eastHeight) > 3);
 				};
 			case "minecraft:stone_depth":
 				String surface_type = if_true.getString("surface_type");
@@ -287,6 +306,9 @@ public final class Condition {
 
 	private int getStoneDepthAbove(int x, int y, int z) throws Exception {
 		int[][] surfaces = getSurfaces(x, z);
+		if (surfaces == null) {
+			return -1;
+		}
 		int[] tops = surfaces[0];
 		int[] bottoms = surfaces[1];
 		int iy = (int)Math.floor(y) - this.min_y;
@@ -300,6 +322,9 @@ public final class Condition {
 
 	private int getStoneDepthBelow(int x, int y, int z) throws Exception {
 		int[][] surfaces = getSurfaces(x, z);
+		if (surfaces == null) {
+			return -1;
+		}
 		int[] tops = surfaces[0];
 		int[] bottoms = surfaces[1];
 		int iy = (int)Math.floor(y) - this.min_y;
@@ -311,11 +336,11 @@ public final class Condition {
 		return -1;
 	}
 
-	private BitSet getColumDensity(BitSet base_terrain, int local_x, int local_z) throws Exception {
+	private BitSet getColumDensity(int[] registries, int local_x, int local_z) throws Exception {
 		BitSet columnDensity = new BitSet(this.terrainHeight);
 		for (int local_y = 0; local_y < this.terrainHeight; local_y++) {
 			int index = Calc.getIndex(local_x, local_y, local_z);
-			if (base_terrain.get(index)) {
+			if (registries[index] != this.airId) {
 				columnDensity.set(local_y);
 			}
 		}
@@ -325,8 +350,11 @@ public final class Condition {
 	private int[][] getSurfaces(int x, int z) throws Exception {
 		int chunk_x = x >> 4;
 		int chunk_z = z >> 4;
-		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
-		BitSet columnDensity = getColumDensity(base_terrain, x & 15, z & 15);
+		int[] registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z);
+		if (registries == null) {
+			return null;
+		}
+		BitSet columnDensity = getColumDensity(registries, x & 15, z & 15);
 		int[] tops = new int[this.terrainHeight];
 		int[] bottoms = new int[this.terrainHeight];
 		int count = 0;
@@ -354,13 +382,17 @@ public final class Condition {
 		return result;
 	}
 
-	private int getWaterHeight(int x, int y, int z) {
+	private int getWaterHeight(int x, int y, int z) throws Exception {
 		if (y > this.sea_level) {
 			return 0;
 		}
 		int chunk_x = x >> 4;
 		int chunk_z = z >> 4;
-		int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z), this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z))));
+		int[] registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z);
+		if (registries == null) {
+			return 0;
+		}
+		int[][] height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, registries);
 		int local_x = x & 15;
 		int local_z = z & 15;
 		int terrainSurface = height_map[local_x][local_z];

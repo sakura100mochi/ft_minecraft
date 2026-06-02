@@ -1,6 +1,5 @@
 package worldgen.overworld.features;
 
-import java.util.BitSet;
 import java.util.List;
 
 import data.Data;
@@ -62,15 +61,11 @@ public final class Place_Features {
 		}
 		int chunk_x = x >> 4;
 		int chunk_z = z >> 4;
-		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
-		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
-		BitSet base_liquid = this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
-		int[] surface = this.data.worldgenThread.getSurface(chunk_x, chunk_z, base_terrain, base_liquid);
-		int[] appliedCarvers = this.data.worldgenThread.getAppliedCarversCache(chunk_x, chunk_z, surface);
+		int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
 		int local_x = x & 15;
 		int local_y = y - this.min_y;
 		int local_z = z & 15;
 		int index = Calc.getIndex(local_x, local_y, local_z);
-		appliedCarvers[index] = registry_id;
+		registries[index] = registry_id;
 	}
 }

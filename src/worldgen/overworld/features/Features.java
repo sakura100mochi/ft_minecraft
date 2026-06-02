@@ -3,6 +3,7 @@ package worldgen.overworld.features;
 import org.json.JSONObject;
 
 import data.Data;
+import worldgen.overworld.Overworld;
 import worldgen.overworld.biome.Biome;
 import worldgen.overworld.features.configured_feature.Configured_feature;
 import worldgen.overworld.features.placed_feature.IPlaced_featureInfo;
@@ -20,7 +21,11 @@ public final class Features {
 		this.place_features = new Place_Features(data);
 	}
 
-	public void generateFeatures(int chunk_x, int chunk_z) throws Exception {
+	public void generateFeatures(int chunk_x, int chunk_z, int[] registries) throws Exception {
+		if ((registries[0] & Overworld.FLAG_FEATURES) != 0) {
+			return;
+		}
+		registries[0] |= Overworld.FLAG_FEATURES;
 		IPlaced_featureInfo[] placed_features = this.placed_feature.getPlaced_features();
 		for (int i = 0; i < placed_features.length; i++) {
 			IPlaced_featureInfo feature_info = placed_features[i];

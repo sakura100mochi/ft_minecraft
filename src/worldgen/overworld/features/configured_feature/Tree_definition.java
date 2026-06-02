@@ -1,7 +1,6 @@
 package worldgen.overworld.features.configured_feature;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -224,12 +223,8 @@ public final class Tree_definition {
 		int local_y = y - this.min_y;
 		int local_z = z & 15;
 		int index = Calc.getIndex(local_x, local_y, local_z);
-		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
-		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
-		BitSet base_liquid = this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
-		int[] surface = this.data.worldgenThread.getSurface(chunk_x, chunk_z, base_terrain, base_liquid);
-		int[] appliedCarvers = this.data.worldgenThread.getAppliedCarversCache(chunk_x, chunk_z, surface);
-		int block = appliedCarvers[index];
+		int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
+		int block = registries[index];
 
 		if (block == this.airId) {
 			return true;

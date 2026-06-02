@@ -10,7 +10,8 @@ public final class Palette {
 
 	public static Map<Integer, Integer> palette(int[] registries) {
 		Set<Integer> set = new LinkedHashSet<>();
-		for (int registry : registries) {
+		for (int i = 1; i < registries.length; i++) {
+			int registry = registries[i];
 			set.add(registry);
 		}
 		Map<Integer, Integer> palette = new HashMap<>();

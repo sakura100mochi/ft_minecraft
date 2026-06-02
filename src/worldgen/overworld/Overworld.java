@@ -21,6 +21,26 @@ public final class Overworld {
 	public final Surface		surface;
 	public final Carvers		carvers;
 	public final Features		features;
+	public final static int FLAG_BASE_TERRAIN = 1 << 31;
+	public final static int FLAG_BASE_LIQUID = 1 << 30;
+	public final static int FLAG_SURFACE = 1 << 29;
+	public final static int FLAG_CARVERS = 1 << 28;
+	public final static int FLAG_APPLIED_CARVERS = 1 << 27;
+	public final static int FLAG_FEATURES = 1 << 26;
+	public final static int FLAG_WORLD_SURFACE_WG_BASE_TERRAIN = 1 << 25;
+	public final static int FLAG_WORLD_SURFACE_WG_BASE_LIQUID = 1 << 24;
+	public final static int FLAG_WORLD_SURFACE_WG_SURFACE = 1 << 23;
+	public final static int FLAG_WORLD_SURFACE_WG_APPLIED_CARVERS = 1 << 22;
+	public final static int FLAG_WORLD_SURFACE_WG_FEATURES = 1 << 21;
+	public final static int FLAG_WORLD_SURFACE = 1 << 20;
+	public final static int FLAG_OCEAN_FLOOR_WG_BASE_TERRAIN = 1 << 25;
+	public final static int FLAG_OCEAN_FLOOR_WG_BASE_LIQUID = 1 << 24;
+	public final static int FLAG_OCEAN_FLOOR_WG_SURFACE = 1 << 23;
+	public final static int FLAG_OCEAN_FLOOR_WG_APPLIED_CARVERS = 1 << 22;
+	public final static int FLAG_OCEAN_FLOOR_WG_FEATURES = 1 << 21;
+	public final static int FLAG_OCEAN_FLOOR = 1 << 20;
+	public final static int FLAG_MOTION_BLOCKING = 1 << 19;
+	public final static int FLAG_MOTION_BLOCKING_NO_LEAVES = 1 << 18;
 
 	public Overworld(Data data) throws Exception {
 		this.structure_set = new Structure_set(data);

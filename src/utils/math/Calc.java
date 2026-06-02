@@ -9,18 +9,21 @@ public final class Calc {
 		if (local_x < 0 || local_x >= SystemSettings.CHUNK_SIZE || local_y < 0 || local_y >= 10000 || local_z < 0 || local_z >= SystemSettings.CHUNK_SIZE) {
 			throw new IllegalArgumentException("utils.math.Calc.getIndex: local_x, local_y, or local_z is out of bounds");
 		}
-		return local_x | (local_z << 4) | (local_y << 8);
+		return (local_x | (local_z << 4) | (local_y << 8)) + 1;
 	}
 
-	public static int getLocalXFromIndex(int index) {
+	private static int getLocalXFromIndex(int index) {
+		index -= 1;
 		return index & 15;
 	}
 
-	public static int getLocalYFromIndex(int index) {
+	private static int getLocalYFromIndex(int index) {
+		index -= 1;
 		return index >> 8;
 	}
 
-	public static int getLocalZFromIndex(int index) {
+	private static int getLocalZFromIndex(int index) {
+		index -= 1;
 		return (index >> 4) & 15;
 	}
 

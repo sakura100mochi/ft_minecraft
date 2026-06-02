@@ -134,10 +134,9 @@ public final class Placement_modifiers {
 
 	private void surface_water_depth_filter(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
 		int max_water_depth = json.getInt("max_water_depth");
-		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
-		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
-		BitSet base_liquid = this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
-		int[][] WORLD_SURFACE_WG = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, base_terrain, base_liquid);
+		int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
+		int[][] WORLD_SURFACE_WG = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, registries);
+		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, registries);
 		List<Integer> result = new ArrayList<>(positions_list.size());
 		for (int i = 0; i < positions_list.size(); i += 3) {
 			int x = positions_list.get(i);
@@ -339,12 +338,8 @@ public final class Placement_modifiers {
 		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
 		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
 		int count = Provider.getIntProvider(json.get("count"), this.data.random);
-		BitSet base_terrain = this.data.worldgenThread.getBaseTerrain(chunk_x, chunk_z);
-		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, base_terrain);
-		BitSet base_liquid = this.data.worldgenThread.getBaseLiquid(chunk_x, chunk_z, OCEAN_FLOOR_WG);
-		int[] surface = this.data.worldgenThread.getSurface(chunk_x, chunk_z, base_terrain, base_liquid);
-		int[] applied_carvers = this.data.worldgenThread.getAppliedCarversCache(chunk_x, chunk_z, surface);
-		List<Integer> layer = getLayer(applied_carvers);
+		int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
+		List<Integer> layer = getLayer(registries);
 		for (int y : layer) {
 			for (int j = 0; j < count; j++) {
 				positions_list.add(initial_x);

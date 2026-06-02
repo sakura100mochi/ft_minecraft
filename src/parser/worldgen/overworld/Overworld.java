@@ -4,10 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import parser.Aparser;
+import data.info.BlockState;
 
 public final class Overworld extends Aparser {
 	public final boolean	aquifers_enabled;
-	public final JSONObject	default_block;
+	public final BlockState	default_block;
 	public final JSONObject	default_fluid;
 	public final boolean	disable_mob_generation;
 	public final boolean	legacy_random_source;
@@ -29,7 +30,7 @@ public final class Overworld extends Aparser {
 		JSONObject settings = this.read_json(settingsFileName, true);
 
 		this.aquifers_enabled = settings.getBoolean("aquifers_enabled");
-		this.default_block = settings.getJSONObject("default_block");
+		this.default_block = new BlockState(settings.getJSONObject("default_block"));
 		this.default_fluid = settings.getJSONObject("default_fluid");
 		this.disable_mob_generation = settings.getBoolean("disable_mob_generation");
 		this.legacy_random_source = settings.getBoolean("legacy_random_source");

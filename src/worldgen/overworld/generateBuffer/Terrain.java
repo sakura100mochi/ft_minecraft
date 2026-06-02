@@ -59,7 +59,7 @@ public final class Terrain {
 		for (int i = 0; i < terrain.length; i++) {
 			long current = 0L;
 			for (int bit = 0; bit < 64; bit++) {
-				int index = i * 64 + bit;
+				int index = (i * 64 + bit) + 1;
 				if (index < registries.length) {
 					int blockId = registries[index];
 					if (blockId != this.airId && blockId != this.waterId) {
@@ -81,7 +81,7 @@ public final class Terrain {
 			int faceIndex = i / this.LONGS_PER_CHUNK;
 			int localI = i % this.LONGS_PER_CHUNK; 
 			while (index != 64) {
-				int localBitPos = localI * 64 + (63 - index);
+				int localBitPos = (localI * 64 + (63 - index)) + 1;
 				int x = Calc.getWorldXFromIndex(localBitPos, chunk_x);
 				int y = Calc.getWorldYFromIndex(localBitPos, this.min_y);
 				int z = Calc.getWorldZFromIndex(localBitPos, chunk_z);
