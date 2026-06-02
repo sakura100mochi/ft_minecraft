@@ -33,14 +33,14 @@ public final class Overworld {
 	public final static int FLAG_WORLD_SURFACE_WG_APPLIED_CARVERS = 1 << 22;
 	public final static int FLAG_WORLD_SURFACE_WG_FEATURES = 1 << 21;
 	public final static int FLAG_WORLD_SURFACE = 1 << 20;
-	public final static int FLAG_OCEAN_FLOOR_WG_BASE_TERRAIN = 1 << 25;
-	public final static int FLAG_OCEAN_FLOOR_WG_BASE_LIQUID = 1 << 24;
-	public final static int FLAG_OCEAN_FLOOR_WG_SURFACE = 1 << 23;
-	public final static int FLAG_OCEAN_FLOOR_WG_APPLIED_CARVERS = 1 << 22;
-	public final static int FLAG_OCEAN_FLOOR_WG_FEATURES = 1 << 21;
-	public final static int FLAG_OCEAN_FLOOR = 1 << 20;
-	public final static int FLAG_MOTION_BLOCKING = 1 << 19;
-	public final static int FLAG_MOTION_BLOCKING_NO_LEAVES = 1 << 18;
+	public final static int FLAG_OCEAN_FLOOR_WG_BASE_TERRAIN = 1 << 19;
+	public final static int FLAG_OCEAN_FLOOR_WG_BASE_LIQUID = 1 << 18;
+	public final static int FLAG_OCEAN_FLOOR_WG_SURFACE = 1 << 17;
+	public final static int FLAG_OCEAN_FLOOR_WG_APPLIED_CARVERS = 1 << 16;
+	public final static int FLAG_OCEAN_FLOOR_WG_FEATURES = 1 << 15;
+	public final static int FLAG_OCEAN_FLOOR = 1 << 14;
+	public final static int FLAG_MOTION_BLOCKING = 1 << 13;
+	public final static int FLAG_MOTION_BLOCKING_NO_LEAVES = 1 << 12;
 
 	public Overworld(Data data) throws Exception {
 		this.structure_set = new Structure_set(data);
