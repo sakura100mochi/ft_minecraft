@@ -88,7 +88,7 @@ public final class Tree_definition {
 				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
 					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
 						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
-							if (Calc.ChebyshevDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius) {
+							if (Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius) {
 								BlockState foliage = BlockStateProvider.getBlockState(this.data, foliage_provider, x_pos, y_pos, z_pos);
 								int id = Registry.getId(foliage.identifier);
 								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
