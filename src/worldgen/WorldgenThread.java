@@ -127,7 +127,7 @@ public final class WorldgenThread extends Thread {
 				long key = it.next();
 				int chunk_x = Position2D.decodedX(key);
 				int chunk_z = Position2D.decodedY(key);
-				int distance = Calc.distance(chunk_x, chunk_z, player_chunk_x, player_chunk_z);
+				int distance = Calc.ChebyshevDistance(chunk_x, chunk_z, player_chunk_x, player_chunk_z);
 				if (distance > VideoSettings.getRender_distance()) {
 					it.remove();
 					WORLD_SURFACE_WG_Cache.remove(key);
@@ -149,7 +149,7 @@ public final class WorldgenThread extends Thread {
 				long key = it.next();
 				int chunk_x = Position2D.decodedX(key);
 				int chunk_z = Position2D.decodedY(key);
-				int distance = Calc.distance(chunk_x, chunk_z, player_chunk_x, player_chunk_z);
+				int distance = Calc.ChebyshevDistance(chunk_x, chunk_z, player_chunk_x, player_chunk_z);
 				if (distance > VideoSettings.getRender_distance() * 2) {
 					it.remove();
 					paletteCache.remove(key);

@@ -1,7 +1,6 @@
 package engine.render;
 
 import java.util.HashSet;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Iterator;
 
@@ -9,18 +8,16 @@ import data.Data;
 import gameManager.ChunkManager;
 import utils.math.Calc;
 import utils.math.Position2D;
-import utils.math.comparable.ComparableVector2i;
 import worldgen.WorldgenThread;
 import settings.options.video_settings.VideoSettings;
 
 public final class RenderChunkDecider {
-	private final PriorityQueue<ComparableVector2i>	renderChunks = new PriorityQueue<>();
-	private final Set<Long>		currentChunks = new HashSet<>();
-	private final Data			data;
+	private final Data				data;
 	private final WorldgenThread	worldgenThread;
-	private final ChunkManager	chunkManager;
-	private int					prevPlayerChunkX;
-	private int					prevPlayerChunkY;
+	private final ChunkManager		chunkManager;
+	private final Set<Long>			currentChunks = new HashSet<>();
+	private int						cleanCounter = 0;
+	private static final int		MAX_CLEAN_COUNTER = 640;
 
 	public RenderChunkDecider(Data data) throws Exception {
 		if (data.player == null || data.worldgenThread == null || data.chunkManager == null) {
@@ -29,8 +26,6 @@ public final class RenderChunkDecider {
 		this.data = data;
 		this.worldgenThread = data.worldgenThread;
 		this.chunkManager = data.chunkManager;
-		this.prevPlayerChunkX = Calc.getChunkIndex(this.data.player.getPosition()[0]);
-		this.prevPlayerChunkY = Calc.getChunkIndex(this.data.player.getPosition()[2]);
 	}
 
 	public void update() {
@@ -38,54 +33,48 @@ public final class RenderChunkDecider {
 		int playerChunkZ = Calc.getChunkIndex(this.data.player.getPosition()[2]);
 		int renderDistance = VideoSettings.getRender_distance() + 5;
 
+		if (this.cleanCounter >= MAX_CLEAN_COUNTER) {
+			clean(playerChunkX, playerChunkZ, renderDistance);
+			this.cleanCounter = 0;
+		} else {
+			this.cleanCounter++;
+		}
+
+		if (this.worldgenThread.getRenderChunkSize() <= 1) {
+			Long key = getNextRenderChunk(playerChunkX, playerChunkZ, renderDistance);
+			if (key != null) {
+				this.worldgenThread.setRenderChunk(key);
+			}
+		}
+	}
+
+	private void clean(int playerChunkX, int playerChunkZ, int renderDistance) {
 		Iterator<Long> it = this.currentChunks.iterator();
 		while (it.hasNext()) {
 			long key = it.next();
-			if (isChunkInRenderDistance(Position2D.decodedX(key), Position2D.decodedY(key), playerChunkX, playerChunkZ, renderDistance) == false) {
+			if (Calc.ChebyshevDistance(Position2D.decodedX(key), Position2D.decodedY(key), playerChunkX, playerChunkZ) > renderDistance) {
 				if (this.chunkManager.cleanChunk(key) == true) {
 					it.remove();
 				}
 			}
 		}
-		setChunks(playerChunkX, playerChunkZ, renderDistance);
-		long current_key = Position2D.toLong(playerChunkX, playerChunkZ);
-		if (this.currentChunks.contains(current_key) == false && this.data.allMeshes.terrainMesh.hasMesh(playerChunkX, playerChunkZ) == false) {
-			this.renderChunks.removeIf(v -> v.chunk_x == playerChunkX && v.chunk_y == playerChunkZ);
-			this.worldgenThread.setRenderChunk(current_key);
-			this.currentChunks.add(current_key);
-		}
-		while (!this.renderChunks.isEmpty() && this.worldgenThread.getRenderChunkSize() <= 1) {
-			ComparableVector2i renderChunk = this.renderChunks.poll();
-			if (renderChunk != null) {
-				long key = Position2D.toLong(renderChunk.chunk_x, renderChunk.chunk_y);
-				if (this.currentChunks.contains(key) == false) {
-					this.worldgenThread.setRenderChunk(key);
-					this.currentChunks.add(key);
-					break;
+	}
+
+	private Long getNextRenderChunk(int playerChunkX, int playerChunkZ, int renderDistance) {
+		for (int distance = 0; distance <= renderDistance; distance++) {
+			for (int dx = -distance; dx <= distance; dx++) {
+				for (int dz = -distance; dz <= distance; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != distance)
+						continue;
+					int chunkX = playerChunkX + dx;
+					int chunkZ = playerChunkZ + dz;
+					long key = Position2D.toLong(chunkX, chunkZ);
+					if (this.currentChunks.add(key)) {
+						return key;
+					}
 				}
 			}
 		}
-
-		this.prevPlayerChunkX = playerChunkX;
-		this.prevPlayerChunkY = playerChunkZ;
-	}
-
-	private void setChunks(int playerChunkX, int playerChunkZ, int renderDistance) {
-		if (!this.renderChunks.isEmpty() && playerChunkX == this.prevPlayerChunkX && playerChunkZ == this.prevPlayerChunkY) {
-			return;
-		}
-
-		this.renderChunks.clear();
-
-		for (int x = -renderDistance; x <= renderDistance; x++) {
-			for (int z = -renderDistance; z <= renderDistance; z++) {
-				this.renderChunks.add(new ComparableVector2i(this.data, playerChunkX + x, playerChunkZ + z));
-			}
-		}
-	}
-
-	private boolean isChunkInRenderDistance(int chunkX, int chunkZ, int playerChunkX, int playerChunkZ, int renderDistance) {
-		int distance = Calc.EuclideanDistance(chunkX, chunkZ, playerChunkX, playerChunkZ);
-		return distance <= renderDistance;
+		return null;
 	}
 }
