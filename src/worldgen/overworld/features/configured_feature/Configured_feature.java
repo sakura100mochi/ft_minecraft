@@ -151,8 +151,7 @@ public final class Configured_feature {
 			case "minecraft:random_selector":
 				return random_selector(config);
 			case "minecraft:random_patch":
-				System.out.println("random_patch is not implemented yet");
-				return null;
+				return flower(config);
 			case "minecraft:replace_single_block":
 				System.out.println("replace_single_block is not implemented yet");
 				return null;
@@ -310,10 +309,11 @@ public final class Configured_feature {
 		return (x, y, z) -> {
 			try {
 				BlockState state = BlockStateProvider.getBlockState(this.data, to_place, x, y, z);
-				if (checkState(state, x, y, z) == false) {
+				Integer id = Registry.getId(state.identifier);
+				if (id == null) {
+					System.out.println("Could not find block id for simple_block with state: " + state.identifier);
 					return null;
 				}
-				int id = Registry.getId(state.identifier);
 				return List.of(new Configured_featureInfo(x, y, z, id, true));
 			} catch (Exception e) {
 				throw new RuntimeException("worldgen.overworld.features.configured_feature.simple_block(): " + e);
@@ -344,6 +344,9 @@ public final class Configured_feature {
 				int new_x = x + this.data.random.nextInt(xz_spread * 2 + 1) - xz_spread;
 				int new_y = y + this.data.random.nextInt(y_spread * 2 + 1) - y_spread;
 				int new_z = z + this.data.random.nextInt(xz_spread * 2 + 1) - xz_spread;
+				if (checkBelowBlock(new_x, new_y, new_z) == false) {
+					continue;
+				}
 				if (finalConfig_info == null && id != null) {
 					result.add(new Configured_featureInfo(new_x, new_y, new_z, id, true));
 				} else if (finalConfig_info != null && finalConfig_info.getConfigured_FeatureInfo(new_x, new_y, new_z) != null) {
@@ -379,31 +382,22 @@ public final class Configured_feature {
 		return this.getConfigured_featureInfo(feature_info.getFeatureName());
 	}
 
-	private boolean checkState(BlockState state, int x, int y, int z) throws Exception {
-		if (state == null || state.identifier == null) {
+	private boolean checkBelowBlock(int x, int y, int z) throws Exception {
+		int chunk_x = x >> 4;
+		int chunk_z = z >> 4;
+		int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
+		int local_x = x & 15;
+		int local_y = y - this.min_y;
+		int local_z = z & 15;
+		if (local_y <= 0) {
 			return false;
 		}
-		List<String> tagAndFileName = this.data.parser.tags.getTagAndFileNameFromIdentifier(state.identifier);
-		for (String tag : tagAndFileName) {
-			if (tag.contains("flowers")) {
-				int chunk_x = x >> 4;
-				int chunk_z = z >> 4;
-				int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
-				int local_x = x & 15;
-				int local_y = y - this.min_y;
-				int local_z = z & 15;
-				if (local_y <= 0) {
-					return false;
-				}
-				int index = Calc.getIndex(local_x, local_y - 1, local_z);
-				int belowId = registries[index];
-				if (belowId == this.dirtId || belowId == this.grass_blockId) {
-					return true;
-				} else {
-					return false;
-				}
-			}
+		int index = Calc.getIndex(local_x, local_y - 1, local_z);
+		int belowId = registries[index];
+		if (belowId == this.dirtId || belowId == this.grass_blockId) {
+			return true;
+		} else {
+			return false;
 		}
-		return true;
 	}
 }

@@ -81,7 +81,7 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay")) {
+				if (texture.contains("grass_block_side_overlay") || texture.contains("short_grass") || texture.contains("tall_grass") || texture.contains("fern") || texture.contains("bush")) {
 					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				} else if (texture.contains("water")) {
 					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
@@ -102,7 +102,7 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay")) {
+				if (texture.contains("grass_block_side_overlay") || texture.contains("short_grass") || texture.contains("tall_grass") || texture.contains("fern") || texture.contains("bush")) {
 					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				} else if (texture.contains("water")) {
 					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
@@ -123,7 +123,7 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.from_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.to_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay")) {
+				if (texture.contains("grass_block_side_overlay") || texture.contains("short_grass") || texture.contains("tall_grass") || texture.contains("fern") || texture.contains("bush")) {
 					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				} else if (texture.contains("water")) {
 					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
@@ -144,7 +144,7 @@ public final class TerrainMesh extends AMesh {
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.to_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 					{x + (float)elementsInfo.to_x / SystemSettings.BLOCK_PIXEL_SIZE, y + (float)elementsInfo.from_y / SystemSettings.BLOCK_PIXEL_SIZE, z + (float)elementsInfo.from_z / SystemSettings.BLOCK_PIXEL_SIZE},
 				};
-				if (texture.contains("grass_block_side_overlay")) {
+				if (texture.contains("grass_block_side_overlay") || texture.contains("short_grass") || texture.contains("tall_grass") || texture.contains("fern") || texture.contains("bush")) {
 					color = block_colors.grass_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 				} else if (texture.contains("water")) {
 					color = block_colors.water_color.getColor((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
