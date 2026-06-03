@@ -163,6 +163,21 @@ public final class Tree_definition {
 			case "minecraft:acacia_foliage_placer":
 				break;
 			case "minecraft:dark_oak_foliage_placer":
+				height = 4;
+				offset = Provider.getIntProvider(foliage_placer.get("offset"), this.data.random);
+				radius = Provider.getIntProvider(foliage_placer.get("radius"), this.data.random);
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
+					for (int x_pos = x - radius - 1; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius - 1; z_pos <= z + radius; z_pos++) {
+							if ((int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x - 0.5, y + trunk_height + offset - height + 2, z - 0.5) <= radius) {
+								BlockState foliage = BlockStateProvider.getBlockState(this.data, foliage_provider, x_pos, y_pos, z_pos);
+								int id = Registry.getId(foliage.identifier);
+								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+							}
+						}
+					}
+					radius++;
+				}
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid foliage_placer type");
@@ -198,6 +213,15 @@ public final class Tree_definition {
 			case "minecraft:mega_jungle_trunk_placer":
 				break;
 			case "minecraft:dark_oak_trunk_placer":
+				for (int height = 0; height < trunk_height - 1; height++) {
+					for (int offset_x = -1; offset_x < 1; offset_x++) {
+						for (int offset_z = -1; offset_z < 1; offset_z++) {
+							trunk = BlockStateProvider.getBlockState(this.data, trunk_provider, x + offset_x, y + height, z + offset_z);
+							id = Registry.getId(trunk.identifier);
+							result.add(new Configured_featureInfo(x + offset_x, y + height, z + offset_z, id, false));
+						}
+					}
+				}
 				break;
 			case "minecraft:fancy_trunk_placer":
 				break;
