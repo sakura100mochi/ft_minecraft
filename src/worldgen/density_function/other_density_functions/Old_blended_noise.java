@@ -8,7 +8,7 @@ public final class Old_blended_noise implements INoise {
 	private final BlendedNoise blendedNoise;
 
 	public Old_blended_noise(Data data, double xz_scale, double y_scale, double xz_factor, double y_factor, double smear_scale_multiplier) throws Exception {
-		this.blendedNoise = new BlendedNoise(data.random, xz_scale, y_scale, xz_factor, y_factor, smear_scale_multiplier);
+		this.blendedNoise = new BlendedNoise(data.random.wg_density_function_old_blended_noise, xz_scale, y_scale, xz_factor, y_factor, smear_scale_multiplier);
 	}
 
 	@Override

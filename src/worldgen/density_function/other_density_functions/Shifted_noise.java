@@ -18,7 +18,7 @@ public final class Shifted_noise implements INoise {
 							INoise shift_x, INoise shift_y, INoise shift_z) throws Exception {
 		String file_name = noise.substring(noise.indexOf(":") + 1) + ".json";
 		JSONObject json = data.parser.worldgen.noise.getFile(file_name);
-		this.normalNoise = new NormalNoise(data.random, json);
+		this.normalNoise = new NormalNoise(data.random.wg_density_function_shifted_noise, json);
 		this.xz_scale = xz_scale;
 		this.y_scale = y_scale;
 		this.shift_x = shift_x;

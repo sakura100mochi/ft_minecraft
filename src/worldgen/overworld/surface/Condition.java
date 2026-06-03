@@ -34,7 +34,7 @@ public final class Condition {
 		this.terrainHeight = data.parser.worldgen.overworld.terrainHeight;
 		this.sea_level = data.parser.worldgen.overworld.sea_level;
 		JSONObject surface_secondary_json = this.data.parser.worldgen.noise.getFile("surface_secondary.json");
-		this.surface_secondary_noise = new OctaveNoise(this.data.random, surface_secondary_json);
+		this.surface_secondary_noise = new OctaveNoise(this.data.random.wg_surface_condition, surface_secondary_json);
 		this.airId = Registry.getId("minecraft:air");
 	}
 
@@ -275,7 +275,7 @@ public final class Condition {
 		}
 		String file_name = noise.substring(noise.indexOf(":") + 1) + ".json";
 		JSONObject noise_json = data.parser.worldgen.noise.getFile(file_name);
-		INoise iNoise = new OctaveNoise(data.random, noise_json);
+		INoise iNoise = new OctaveNoise(data.random.wg_surface_condition.fork(), noise_json);
 		noise_threshold_cache.put(noise, iNoise);
 		return iNoise;
 	}

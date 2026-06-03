@@ -16,6 +16,8 @@ import utils.math.noise.PerlinNoise;
 import worldgen.overworld.biome.Biome;
 import worldgen.provider.Provider;
 import utils.registry.Registry;
+import utils.math.random.IPositionalRandom;
+import utils.math.random.IRandom;
 
 public final class Placement_modifiers {
 	private final Data				data;
@@ -25,6 +27,7 @@ public final class Placement_modifiers {
 	private final int				terrainHeight;
 	private final PerlinNoise		noise;
 	private final int				airId;
+	private final IPositionalRandom iPositionalRandom;
 
 	protected Placement_modifiers(Data data, Biome biome) throws Exception {
 		this.data = data;
@@ -32,8 +35,9 @@ public final class Placement_modifiers {
 		this.block_predicate = new Block_predicate(data);
 		this.min_y = this.data.parser.worldgen.overworld.min_y;
 		this.terrainHeight = this.data.parser.worldgen.overworld.terrainHeight;
-		this.noise = new PerlinNoise(this.data.random);
+		this.noise = new PerlinNoise(this.data.random.wg_features_placed_feature);
 		this.airId = Registry.getId("minecraft:air");
+		this.iPositionalRandom = data.random.wg_features_placed_feature.forkPositional();
 	}
 
 	protected IPlaced_featureInfo parse(JSONObject json) throws Exception {
@@ -187,8 +191,9 @@ public final class Placement_modifiers {
 		int chance = json.getInt("chance");
 		float rarity = 1.0f / chance;
 		List<Integer> result = new ArrayList<>(positions_list.size());
+		IRandom random = this.iPositionalRandom.at(chunk_x, chunk_z);
 		for (int i = 0; i < positions_list.size(); i += 3) {
-			float randomValue = this.data.random.nextFloat();
+			float randomValue = random.nextFloat();
 			if (randomValue < rarity) {
 				result.add(positions_list.get(i));
 				result.add(positions_list.get(i + 1));
@@ -200,8 +205,9 @@ public final class Placement_modifiers {
 	}
 
 	private void random_offset(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		int xz_spread = Provider.getIntProvider(json.get("xz_spread"), this.data.random);
-		int y_spread = Provider.getIntProvider(json.get("y_spread"), this.data.random);
+		IRandom random = this.iPositionalRandom.at(chunk_x, chunk_z);
+		int xz_spread = Provider.getIntProvider(json.get("xz_spread"), random);
+		int y_spread = Provider.getIntProvider(json.get("y_spread"), random);
 		for (int i = 0; i < positions_list.size(); i += 3) {
 			int x = positions_list.get(i);
 			int y = positions_list.get(i + 1);
@@ -248,11 +254,12 @@ public final class Placement_modifiers {
 	}
 
 	private void in_square(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
+		IRandom random = this.iPositionalRandom.at(chunk_x, chunk_z);
 		for (int i = 0; i < positions_list.size(); i += 3) {
 			int x = positions_list.get(i);
 			int z = positions_list.get(i + 2);
-			int random_offset_x = this.data.random.nextInt(16);
-			int random_offset_z = this.data.random.nextInt(16);
+			int random_offset_x = random.nextInt(16);
+			int random_offset_z = random.nextInt(16);
 			positions_list.set(i, x + random_offset_x);
 			positions_list.set(i + 2, z + random_offset_z);
 		}
@@ -272,7 +279,8 @@ public final class Placement_modifiers {
 	}
 
 	private void height_range(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		int height = Provider.getHeightProvider(json.getJSONObject("height"), this.data.random, this.min_y, this.terrainHeight);
+		IRandom random = this.iPositionalRandom.at(chunk_x, chunk_z);
+		int height = Provider.getHeightProvider(json.getJSONObject("height"), random, this.min_y, this.terrainHeight);
 		for (int i = 0; i < positions_list.size(); i += 3) {
 			positions_list.set(i + 1, height);
 		}
@@ -335,9 +343,10 @@ public final class Placement_modifiers {
 	}
 
 	private void count_on_every_layer(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
+		IRandom random = this.iPositionalRandom.at(chunk_x, chunk_z);
 		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
 		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
-		int count = Provider.getIntProvider(json.get("count"), this.data.random);
+		int count = Provider.getIntProvider(json.get("count"), random);
 		int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
 		List<Integer> layer = getLayer(registries);
 		for (int y : layer) {
@@ -350,10 +359,11 @@ public final class Placement_modifiers {
 	}
 
 	private void count(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
+		IRandom random = this.iPositionalRandom.at(chunk_x, chunk_z);
 		int initial_x = chunk_x * SystemSettings.CHUNK_SIZE;
 		int initial_y = this.min_y;
 		int initial_z = chunk_z * SystemSettings.CHUNK_SIZE;
-		int count = Provider.getIntProvider(json.get("count"), this.data.random);
+		int count = Provider.getIntProvider(json.get("count"), random);
 		for (int j = 0; j < count; j++) {
 			positions_list.add(initial_x);
 			positions_list.add(initial_y);

@@ -16,6 +16,8 @@ import worldgen.provider.BlockStateProvider;
 import utils.registry.Registry;
 import data.info.BlockState;
 import utils.math.Calc;
+import utils.math.random.IPositionalRandom;
+import utils.math.random.IRandom;
 
 public final class Configured_feature {
 	private final Data				data;
@@ -26,10 +28,12 @@ public final class Configured_feature {
 	private final int min_y;
 	private final int dirtId;
 	private final int grass_blockId;
+	private final IPositionalRandom	iPositionalRandom;
 
 	public Configured_feature(Data data, Placed_feature placed_feature) throws Exception {
 		this.data = data;
 		this.placed_feature = placed_feature;
+		this.iPositionalRandom = data.random.wg_features_configured_feature.forkPositional();
 		this.tree_definition = new Tree_definition(data);
 		this.oreFeature = new OreFeature(data);
 		String[] allFiles = this.data.parser.worldgen.configured_feature.getAllFiles();
@@ -274,7 +278,7 @@ public final class Configured_feature {
 					feature = feature_json.getString("feature");
 				}
 				float chance = feature_chance.getFloat("chance");
-				float random_value = this.data.random.nextFloat();
+				float random_value = this.iPositionalRandom.fromHashOf("random_selector" + feature).nextFloat();
 				if (random_value < chance) {
 					result = feature;
 					break;
@@ -309,7 +313,8 @@ public final class Configured_feature {
 		//boolean schedule_tick = config.optBoolean("schedule_tick", false);
 		return (x, y, z) -> {
 			try {
-				BlockState state = BlockStateProvider.getBlockState(this.data, to_place, x, y, z);
+				IRandom random = this.iPositionalRandom.at(x, y, z);
+				BlockState state = BlockStateProvider.getBlockState(this.data, random, to_place, x, y, z);
 				Integer id = Registry.getId(state.identifier);
 				if (id == null) {
 					//System.out.println("Could not find block id for simple_block with state: " + state.identifier);
@@ -342,9 +347,10 @@ public final class Configured_feature {
 		return (x, y, z) -> {
 			List<Configured_featureInfo> result = new ArrayList<>();
 			for (int i = 0; i < tries; i++) {
-				int new_x = x + this.data.random.nextInt(xz_spread * 2 + 1) - xz_spread;
-				int new_y = y + this.data.random.nextInt(y_spread * 2 + 1) - y_spread;
-				int new_z = z + this.data.random.nextInt(xz_spread * 2 + 1) - xz_spread;
+				IRandom random = this.iPositionalRandom.at(x, y, z);
+				int new_x = x + random.nextInt(xz_spread * 2 + 1) - xz_spread;
+				int new_y = y + random.nextInt(y_spread * 2 + 1) - y_spread;
+				int new_z = z + random.nextInt(xz_spread * 2 + 1) - xz_spread;
 				if (checkBelowBlock(new_x, new_y, new_z) == false) {
 					continue;
 				}
@@ -363,7 +369,8 @@ public final class Configured_feature {
 		JSONObject features_json = config.optJSONObject("features", null);
 		JSONArray features_array = config.optJSONArray("features", null);
 		if (features_array != null) {
-			int index = this.data.random.nextInt(features_array.length());
+			IRandom random = this.iPositionalRandom.fromHashOf("simple_random_selector" + features_array.toString());
+			int index = random.nextInt(features_array.length());
 			features_json = features_array.getJSONObject(index);
 		}
 		if (features_json != null) {

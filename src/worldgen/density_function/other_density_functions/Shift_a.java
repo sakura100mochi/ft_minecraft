@@ -12,7 +12,7 @@ public final class Shift_a implements INoise {
 	public Shift_a(Data data, String argument) throws Exception {
 		String file_name = argument.substring(argument.indexOf(":") + 1) + ".json";
 		JSONObject json = data.parser.worldgen.noise.getFile(file_name);
-		this.octaveNoise = new OctaveNoise(data.random, json);
+		this.octaveNoise = new OctaveNoise(data.random.wg_density_function_shift_a, json);
 	}
 
 	@Override

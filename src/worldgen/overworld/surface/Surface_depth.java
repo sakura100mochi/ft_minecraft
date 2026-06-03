@@ -17,7 +17,7 @@ public final class Surface_depth {
 		}
 		
 		JSONObject surfaceJson = data.parser.worldgen.noise.getFile("surface.json");
-		this.surfaceNoise = new OctaveNoise(data.random, surfaceJson); 
+		this.surfaceNoise = new OctaveNoise(data.random.wg_surface_depth, surfaceJson); 
 	}
 
 	protected int getDepth(double x, double z) {

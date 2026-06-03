@@ -26,12 +26,10 @@ import gameManager.Tick;
 import engine.render.RenderChunkDecider;
 import engine.render.Renderer;
 import utils.color.block_colors.Block_colors;
-import utils.math.random.IRandom;
-import utils.math.random.XoroshiroRandom;
 
 public final class Data {
 	public final long		seed;
-	public final IRandom	random;
+	public final Random		random;
 
 	public Event			event = null;
 	public Tick				tick = null;
@@ -63,6 +61,6 @@ public final class Data {
 
 	public Data(long seed) {
 		this.seed = seed;
-		this.random = XoroshiroRandom.create(seed);
+		this.random = new Random(seed);
 	}
 }

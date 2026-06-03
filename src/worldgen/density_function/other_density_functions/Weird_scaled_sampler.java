@@ -14,7 +14,7 @@ public final class Weird_scaled_sampler implements INoise {
 	public Weird_scaled_sampler(Data data, String rarity_value_mapper, String noise, INoise input) throws Exception {
 		String file_name = noise.substring(noise.indexOf(":") + 1) + ".json";
 		JSONObject json = data.parser.worldgen.noise.getFile(file_name);
-		this.octaveNoise = new OctaveNoise(data.random, json);
+		this.octaveNoise = new OctaveNoise(data.random.wg_density_function_weird_scaled_sampler, json);
 		this.rarity_value_mapper = rarity_value_mapper;
 		this.input = input;
 	}

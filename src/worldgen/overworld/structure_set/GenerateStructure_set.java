@@ -4,9 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import data.Data;
+import utils.math.random.IRandom;
+import utils.math.random.IPositionalRandom;
 
 public final class GenerateStructure_set {
-	private final Data			data;
 	private final JSONArray		structures;
 	private final JSONObject	placement;
 	private final String		type;
@@ -14,11 +15,12 @@ public final class GenerateStructure_set {
 	private int					separation;
 	private int					offset;
 	private int					totalWeight;
+	private final IPositionalRandom iPositionalRandom;
 
 	protected GenerateStructure_set(Data data, JSONArray structures, JSONObject placement) throws Exception {
-		this.data = data;
 		this.structures = structures;
 		this.placement = placement;
+		this.iPositionalRandom = data.random.wg_structure_set.forkPositional();
 
 		this.totalWeight = 0;
 		for (int i = 0; i < this.structures.length(); i++) {
@@ -32,11 +34,11 @@ public final class GenerateStructure_set {
 			this.spacing = this.placement.getInt("spacing");
 			this.separation = this.placement.getInt("separation");
 			if (this.placement.has("spread_type") == true && this.placement.getString("spread_type").equals("triangular") == true) {
-				int random1 = data.random.nextInt(this.spacing - this.separation);
-				int random2 = data.random.nextInt(this.spacing - this.separation);
+				int random1 = data.random.wg_structure_set.nextInt(this.spacing - this.separation);
+				int random2 = data.random.wg_structure_set.nextInt(this.spacing - this.separation);
 				this.offset = (int)Math.floor((random1 + random2) / 2);
 			} else {
-				this.offset = data.random.nextInt(this.spacing - this.separation);
+				this.offset = data.random.wg_structure_set.nextInt(this.spacing - this.separation);
 			}
 		} else if (this.type.equals("minecraft:concentric_rings")) {
 		} else {
@@ -44,23 +46,24 @@ public final class GenerateStructure_set {
 		}
 	}
 
-	protected String setStructure(float chunkX, float chunkZ) {
+	protected String setStructure(int chunkX, int chunkZ) {
 		if (this.type.equals("minecraft:random_spread") == true) {
 			if (isPlacementPos(chunkX) == true && isPlacementPos(chunkZ) == true) {
-				return getStructure();
+				return getStructure(chunkX, chunkZ);
 			}
 		}
 
 		return null;
 	}
 
-	private String getStructure() {
-		int random = this.data.random.nextInt(this.totalWeight);
+	private String getStructure(int chunkX, int chunkZ) {
+		IRandom random = this.iPositionalRandom.at(chunkX, chunkZ);
+		int random_value = random.nextInt(this.totalWeight);
 		int prevWeight = 0;
 		for (int i = 0; i < this.structures.length(); i++) {
 			JSONObject json = this.structures.getJSONObject(i);
 			int weight = json.getInt("weight");
-			if (prevWeight <= random && random < weight) {
+			if (prevWeight <= random_value && random_value < weight) {
 				return json.getString("structure");
 			}
 		}
