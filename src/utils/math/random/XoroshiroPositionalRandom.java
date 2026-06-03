@@ -22,6 +22,13 @@ public final class XoroshiroPositionalRandom implements IPositionalRandom {
 	}
 
 	@Override
+	public IRandom at(double x, double y) {
+		long positionSeed = Calc.getHashFromCoordinate(x, y);
+		long seedLo = positionSeed ^ this.seedLo;
+		return new XoroshiroRandom(new long[] {seedLo, this.seedHi});
+	}
+
+	@Override
 	public IRandom fromHashOf(String name) throws Exception {
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		byte[] hash = md.digest(name.getBytes(StandardCharsets.UTF_8));

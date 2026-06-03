@@ -86,6 +86,12 @@ public final class Calc {
 		return seed >> 16;
 	}
 
+	public static long getHashFromCoordinate(double x, double y) {
+		long seed = ((long)x * 3129871) ^ (long)y * 116129781;
+		seed = seed * seed * 42317861 + seed * 11;
+		return seed >> 16;
+	}
+
 	public static long longFromBytes(byte a, byte b, byte c, byte d, byte e, byte f, byte g, byte h){
 		return (long)a << (long)56
 			| (long)b << (long)48

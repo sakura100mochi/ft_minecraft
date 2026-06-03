@@ -14,7 +14,7 @@ public final class Noise implements INoise {
 	public Noise(Data data, String noise, double xz_scale, double y_scale) throws Exception {
 		String file_name = noise.substring(noise.indexOf(":") + 1) + ".json";
 		JSONObject json = data.parser.worldgen.noise.getFile(file_name);
-		this.octaveNoise = new OctaveNoise(data.random, json);
+		this.octaveNoise = new OctaveNoise(data.random.wg_density_function_noise, json);
 		this.xz_scale = xz_scale;
 		this.y_scale = y_scale;
 	}

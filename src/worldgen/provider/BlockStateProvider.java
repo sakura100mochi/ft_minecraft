@@ -12,7 +12,7 @@ import utils.math.random.IRandom;
 public final class BlockStateProvider {
 	private BlockStateProvider() {}
 
-	public static BlockState getBlockState(Data data, JSONObject json, int x, int y, int z) throws Exception {
+	public static BlockState getBlockState(Data data, IRandom random, JSONObject json, int x, int y, int z) throws Exception {
 		String type = json.getString("type");
 		switch (type) {
 			case "minecraft:simple_state_provider":
@@ -33,7 +33,7 @@ public final class BlockStateProvider {
 					int weight = entry.getInt("weight");
 					totalWeight += weight;
 				}
-				int randomWeight = data.random.nextInt(totalWeight);
+				int randomWeight = random.nextInt(totalWeight);
 				int prevWeight = 0;
 				for (int i = 0; i < entries.length(); i++) {
 					JSONObject entry = entries.getJSONObject(i);
@@ -49,13 +49,13 @@ public final class BlockStateProvider {
 				throw new IllegalStateException("worldgen.provider.BlockStateProvider | Failed to select a BlockState from weighted_state_provider totalWeight: " + totalWeight + ", randomWeight: " + randomWeight);
 			case "minecraft:randomized_int_state_provider":
 				String property = json.getString("property");
-				int values = Provider.getIntProvider(json.get("values"), data.random);
-				BlockState source = getBlockState(data, json.getJSONObject("source"), x, y, z);
+				int values = Provider.getIntProvider(json.get("values"), random);
+				BlockState source = getBlockState(data, random, json.getJSONObject("source"), x, y, z);
 				return BlockState.addProperty(source, property, values);
 			case "minecraft:noise_provider":
 				long seed = json.getLong("seed");
-				IRandom random = XoroshiroRandom.create(seed);
-				OctaveNoise noise = new OctaveNoise(random, json.getJSONObject("noise"));
+				IRandom noise_random = XoroshiroRandom.create(seed);
+				OctaveNoise noise = new OctaveNoise(noise_random, json.getJSONObject("noise"));
 				float scale = json.getFloat("scale");
 				JSONArray states = json.getJSONArray("states");
 				double noiseValue = noise.sample3D(x * scale, 0, z * scale);
@@ -64,10 +64,10 @@ public final class BlockStateProvider {
 				return new BlockState(stateJson);
 			case "minecraft:dual_noise_provider":
 				seed = json.getLong("seed");
-				random = XoroshiroRandom.create(seed);
-				noise = new OctaveNoise(random, json.getJSONObject("noise"));
+				noise_random = XoroshiroRandom.create(seed);
+				noise = new OctaveNoise(noise_random, json.getJSONObject("noise"));
 				scale = json.getFloat("scale");
-				OctaveNoise slow_noise = new OctaveNoise(random, json.getJSONObject("slow_noise"));
+				OctaveNoise slow_noise = new OctaveNoise(noise_random, json.getJSONObject("slow_noise"));
 				float slow_scale = json.getFloat("slow_scale");
 				int min_variety;
 				int max_variety;
@@ -99,8 +99,8 @@ public final class BlockStateProvider {
 				return new BlockState(stateJson);
 			case "minecraft:noise_threshold_provider":
 				seed = json.getLong("seed");
-				random = XoroshiroRandom.create(seed);
-				noise = new OctaveNoise(random, json.getJSONObject("noise"));
+				noise_random = XoroshiroRandom.create(seed);
+				noise = new OctaveNoise(noise_random, json.getJSONObject("noise"));
 				scale = json.getFloat("scale");
 				float threshold = json.getFloat("threshold");
 				float high_chance = json.getFloat("high_chance");
@@ -108,7 +108,7 @@ public final class BlockStateProvider {
 				JSONArray low_states = json.getJSONArray("low_states");
 				JSONArray high_states = json.getJSONArray("high_states");
 				noiseValue = noise.sample3D(x * scale, 0, z * scale);
-				float chance = data.random.nextFloat();
+				float chance = noise_random.nextFloat();
 				if (noiseValue < threshold) {
 					states = low_states;
 				} else if (chance < high_chance) {

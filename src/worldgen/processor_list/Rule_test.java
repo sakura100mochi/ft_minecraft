@@ -7,11 +7,13 @@ import java.util.List;
 import data.Data;
 import utils.registry.Registry;
 import data.info.BlockState;
+import utils.math.random.IPositionalRandom;
+import utils.math.random.IRandom;
 
 public final class Rule_test {
 	private Rule_test() {}
 
-	public static IProcessor_list parse(Data data, JSONObject json) throws Exception {
+	public static IProcessor_list parse(Data data, IPositionalRandom positional_random, JSONObject json) throws Exception {
 		String predicate_type = json.getString("predicate_type");
 		switch (predicate_type) {
 			case "minecraft:always_true":
@@ -44,7 +46,8 @@ public final class Rule_test {
 				float clampedProbability = Math.max(0, Math.min(1, probability));
 				return (x, y, z) -> {
 					try {
-						float random_value = data.random.nextFloat();
+						IRandom random = positional_random.at(x, y, z);
+						float random_value = random.nextFloat();
 						if (random_value > clampedProbability) {
 							return false;
 						}
@@ -61,7 +64,8 @@ public final class Rule_test {
 				clampedProbability = Math.max(0, Math.min(1, probability));
 				return (x, y, z) -> {
 					try {
-						float random_value = data.random.nextFloat();
+						IRandom random = positional_random.at(x, y, z);
+						float random_value = random.nextFloat();
 						if (random_value > clampedProbability) {
 							return false;
 						}

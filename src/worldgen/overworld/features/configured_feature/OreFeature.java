@@ -15,12 +15,16 @@ import worldgen.processor_list.Rule_test;
 import utils.math.Calc;
 import utils.math.Position3D;
 import utils.registry.Registry;
+import utils.math.random.IRandom;
+import utils.math.random.IPositionalRandom;
 
 public final class OreFeature {
 	private final Data data;
+	private final IPositionalRandom iPositionalRandom;
 
 	protected OreFeature(Data data) {
 		this.data = data;
+		this.iPositionalRandom = data.random.wg_features_configured_feature.forkPositional();
 	}
 
 	protected IConfigured_featureInfo parse(JSONObject config) throws Exception {
@@ -33,7 +37,7 @@ public final class OreFeature {
 			for (int i = 0; i < targets.length(); i++) {
 				JSONObject target = targets.getJSONObject(i);
 				JSONObject target_block_json = target.getJSONObject("target");
-				iProcessor_list[i] = Rule_test.parse(this.data, target_block_json);
+				iProcessor_list[i] = Rule_test.parse(this.data, this.iPositionalRandom, target_block_json);
 				JSONObject state_json = target.getJSONObject("state");
 				BlockState state = new BlockState(state_json);
 				Integer id = Registry.getId(state.identifier);
@@ -44,13 +48,14 @@ public final class OreFeature {
 			if (targets == null) {
 				return null;
 			}
+			IRandom random = this.iPositionalRandom.at(x, y, z);
 
 			List<Configured_featureInfo> result = new ArrayList<>();
 			Set<Long> visited = new HashSet<>();
 			boolean isAirExposedCalculated = false;
 
-			double theta = this.data.random.nextDouble() * Math.PI;
-			double pitch = (this.data.random.nextFloat() * 2.0f - 1.0f) * 0.5f;
+			double theta = random.nextDouble() * Math.PI;
+			double pitch = (random.nextFloat() * 2.0f - 1.0f) * 0.5f;
 
 			double radius_vector = (double) size / 16.0; 
 
@@ -91,7 +96,7 @@ public final class OreFeature {
 							}
 
 							if (isAirExposedCalculated == false && this.isAirExposed(new_x, new_y, new_z) == true) {
-								float random_value = this.data.random.nextFloat();
+								float random_value = random.nextFloat();
 								if (random_value <= discard_chance_on_air_exposure) {
 									visited.clear();
 									visited = null;
