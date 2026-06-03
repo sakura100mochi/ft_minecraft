@@ -47,17 +47,17 @@ public final class Calc {
 		return Math.max(Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)), Math.abs(z1 - z2));
 	}
 
-	public static int EuclideanDistance(int x1, int z1, int x2, int z2) {
+	public static double EuclideanDistance(int x1, int z1, int x2, int z2) {
 		int dx = x1 - x2;
 		int dz = z1 - z2;
-		return (int)Math.sqrt(dx * dx + dz * dz);
+		return Math.sqrt(dx * dx + dz * dz);
 	}
 
-	public static int EuclideanDistance(int x1, int y1, int z1, int x2, int y2, int z2) {
+	public static double EuclideanDistance(int x1, int y1, int z1, int x2, int y2, int z2) {
 		int dx = x1 - x2;
 		int dy = y1 - y2;
 		int dz = z1 - z2;
-		return (int)Math.sqrt(dx * dx + dy * dy + dz * dz);
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
 	public static int getChunkIndex(int world_block_pos) {

@@ -88,7 +88,7 @@ public final class Tree_definition {
 				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
 					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
 						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
-							if (Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius) {
+							if ((int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius) {
 								BlockState foliage = BlockStateProvider.getBlockState(this.data, foliage_provider, x_pos, y_pos, z_pos);
 								int id = Registry.getId(foliage.identifier);
 								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
@@ -119,8 +119,8 @@ public final class Tree_definition {
 				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
 					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
 						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
-							if (Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius
-								&& Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - (height / 2) + 1, z) <= radius) {
+							if ((int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius
+								&& (int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - (height / 2) + 1, z) <= radius) {
 								BlockState foliage = BlockStateProvider.getBlockState(this.data, foliage_provider, x_pos, y_pos, z_pos);
 								int id = Registry.getId(foliage.identifier);
 								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
@@ -132,6 +132,25 @@ public final class Tree_definition {
 			case "minecraft:jungle_foliage_placer":
 				break;
 			case "minecraft:spruce_foliage_placer":
+				offset = Provider.getIntProvider(foliage_placer.get("offset"), this.data.random);
+				int max_radius = Provider.getIntProvider(foliage_placer.get("radius"), this.data.random);
+				int spruce_trunk_height = Provider.getIntProvider(foliage_placer.get("trunk_height"), this.data.random);
+				radius = 0;
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + spruce_trunk_height; y_pos--) {
+					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
+							if (Calc.EuclideanDistance(x_pos, z_pos, x, z) <= radius) {
+								BlockState foliage = BlockStateProvider.getBlockState(this.data, foliage_provider, x_pos, y_pos, z_pos);
+								int id = Registry.getId(foliage.identifier);
+								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+							}
+						}
+					}
+					radius++;
+					if (radius > max_radius) {
+						radius = 1;
+					}
+				}
 				break;
 			case "minecraft:pine_foliage_placer":
 				break;
