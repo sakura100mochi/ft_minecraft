@@ -10,7 +10,7 @@ public final class WorldSettings {
 		CREATIVE,
 		SPECTATOR
 	}
-	private static GameMode	gameMode = GameMode.SURVIVAL;
+	private static GameMode	gameMode = GameMode.SPECTATOR;
 
 	public static GameMode getGameMode() {
 		return gameMode;
@@ -34,7 +34,7 @@ public final class WorldSettings {
 		}
 	}
 
-	private static boolean flying = false;
+	private static boolean flying = true;
 
 	public static boolean isFlying() {
 		return flying;

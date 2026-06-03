@@ -24,7 +24,8 @@ public final class Collision {
 		for (double check_x = min_x; check_x <= max_x; check_x += 0.1) {
 			for (double check_y = min_y; check_y <= max_y; check_y += 0.1) {
 				for (double check_z = min_z; check_z <= max_z; check_z += 0.1) {
-					if (this.data.worldgenThread.isAir((int)Math.floor(check_x), (int)Math.floor(check_y), (int)Math.floor(check_z)) == false) {
+					if (this.data.worldgenThread.isAir((int)Math.floor(check_x), (int)Math.floor(check_y), (int)Math.floor(check_z)) == false &&
+						this.data.worldgenThread.isWater((int)Math.floor(check_x), (int)Math.floor(check_y), (int)Math.floor(check_z)) == false) {
 						return true;
 					}
 				}

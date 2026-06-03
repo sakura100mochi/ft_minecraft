@@ -1,7 +1,6 @@
-package worldgen.generateBuffer;
+package worldgen.overworld.generateBuffer;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
 
@@ -10,9 +9,8 @@ import data.info.models.block.BlockInfo;
 import models.mesh.terrain.TerrainMesh;
 import settings.SystemSettings;
 import texture.UV;
-import utils.registry.BitCompression;
-import utils.registry.Palette;
 import worldgen.WorldgenThread;
+import utils.math.Calc;
 import utils.registry.Registry;
 
 public final class Water {
@@ -45,8 +43,7 @@ public final class Water {
 		this.emptyChunk = new long[this.LONGS_PER_CHUNK];
 	}
 	
-	public ByteBuffer generateBuffer(int chunk_x, int chunk_z, long[] protoChunk, Map<Integer, Integer> palette) throws Exception {
-		int [] registries = BitCompression.decompress(protoChunk, Palette.reversePalette(palette));
+	public ByteBuffer generateBuffer(int chunk_x, int chunk_z, int[] registries) throws Exception {
 		long[] water = waterOrNot(registries);
 		long[] terrain = terrainOrNot(registries);
 		long[] culled = addCulling(chunk_x, chunk_z, water, terrain);
@@ -54,11 +51,14 @@ public final class Water {
 	}
 
 	private long[] waterOrNot(int[] registries) {
+		if (registries == null) {
+			return this.emptyChunk;
+		}
 		long[] water = new long[this.LONGS_PER_CHUNK];
 		for (int i = 0; i < water.length; i++) {
 			long current = 0L;
 			for (int bit = 0; bit < 64; bit++) {
-				int index = i * 64 + bit;
+				int index = (i * 64 + bit) + 1;
 				if (index < registries.length) {
 					int blockId = registries[index];
 					if (blockId == this.waterId) {
@@ -72,11 +72,14 @@ public final class Water {
 	}
 
 	private long[] terrainOrNot(int[] registries) {
+		if (registries == null) {
+			return this.emptyChunk;
+		}
 		long[] terrain = new long[this.LONGS_PER_CHUNK];
 		for (int i = 0; i < terrain.length; i++) {
 			long current = 0L;
 			for (int bit = 0; bit < 64; bit++) {
-				int index = i * 64 + bit;
+				int index = (i * 64 + bit) + 1;
 				if (index < registries.length) {
 					int blockId = registries[index];
 					if (blockId != this.airId && blockId != this.waterId) {
@@ -98,23 +101,23 @@ public final class Water {
 			int faceIndex = i / this.LONGS_PER_CHUNK;
 			int localI = i % this.LONGS_PER_CHUNK; 
 			while (index != 64) {
-				int localBitPos = localI * 64 + (63 - index);
-				int x = chunk_x * SystemSettings.CHUNK_SIZE + (localBitPos % SystemSettings.CHUNK_SIZE);
-				int y = this.min_y + (localBitPos / (SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE));
-				int z = chunk_z * SystemSettings.CHUNK_SIZE + ((localBitPos / SystemSettings.CHUNK_SIZE) % SystemSettings.CHUNK_SIZE);
+				int localBitPos = (localI * 64 + (63 - index)) + 1;
+				int x = Calc.getWorldXFromIndex(localBitPos, chunk_x);
+				int y = Calc.getWorldYFromIndex(localBitPos, this.min_y);
+				int z = Calc.getWorldZFromIndex(localBitPos, chunk_z);
 
 				if (faceIndex == 0)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "East", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "East", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 1)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "West", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "West", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 2)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "South", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "South", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 3)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "North", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "North", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 4)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "Up", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "Up", this.data.textureManager.blocksAtlas, this.data.block_colors);
 				else if (faceIndex == 5)
-					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, this.data.water_color, x, y, z, "Down", this.data.textureManager.blocksAtlas);
+					TerrainMesh.writeQuad(vertexInfos, this.waterInfo, this.uv, x, y, z, "Down", this.data.textureManager.blocksAtlas, this.data.block_colors);
 
 				currentLong &= ~(1L << (63 - index));
 				index = Long.numberOfLeadingZeros(currentLong);
@@ -141,54 +144,14 @@ public final class Water {
 		long extractX_0  = 0x0001000100010001L;
 		long extractX_15 = 0x8000800080008000L;		
 
-		long[] chunkEast;
-		long[] terrainEast;
-		long[] protoChunkEast = this.worldgenThread.getProtoChunkOrNull(chunk_x + 1, chunk_z);
-		Map<Integer, Integer> paletteEast = this.worldgenThread.getPaletteOrNull(chunk_x + 1, chunk_z);
-		if (protoChunkEast != null && paletteEast != null) {
-			int[] registriesEast = BitCompression.decompress(protoChunkEast, Palette.reversePalette(paletteEast));
-			chunkEast = waterOrNot(registriesEast);
-			terrainEast = terrainOrNot(registriesEast);
-		} else {
-			chunkEast = this.emptyChunk;
-			terrainEast = this.emptyChunk;
-		}
-		long[] chunkWest;
-		long[] terrainWest;
-		long[] protoChunkWest = this.worldgenThread.getProtoChunkOrNull(chunk_x - 1, chunk_z);
-		Map<Integer, Integer> paletteWest = this.worldgenThread.getPaletteOrNull(chunk_x - 1, chunk_z);
-		if (protoChunkWest != null && paletteWest != null) {
-			int[] registriesWest = BitCompression.decompress(protoChunkWest, Palette.reversePalette(paletteWest));
-			chunkWest = waterOrNot(registriesWest);
-			terrainWest = terrainOrNot(registriesWest);
-		} else {
-			chunkWest = this.emptyChunk;
-			terrainWest = this.emptyChunk;
-		}
-		long[] chunkSouth;
-		long[] terrainSouth;
-		long[] protoChunkSouth = this.worldgenThread.getProtoChunkOrNull(chunk_x, chunk_z + 1);
-		Map<Integer, Integer> paletteSouth = this.worldgenThread.getPaletteOrNull(chunk_x, chunk_z + 1);
-		if (protoChunkSouth != null && paletteSouth != null) {
-			int[] registriesSouth = BitCompression.decompress(protoChunkSouth, Palette.reversePalette(paletteSouth));
-			chunkSouth = waterOrNot(registriesSouth);
-			terrainSouth = terrainOrNot(registriesSouth);
-		} else {
-			chunkSouth = this.emptyChunk;
-			terrainSouth = this.emptyChunk;
-		}
-		long[] chunkNorth;
-		long[] terrainNorth;
-		long[] protoChunkNorth = this.worldgenThread.getProtoChunkOrNull(chunk_x, chunk_z - 1);
-		Map<Integer, Integer> paletteNorth = this.worldgenThread.getPaletteOrNull(chunk_x, chunk_z - 1);
-		if (protoChunkNorth != null && paletteNorth != null) {
-			int[] registriesNorth = BitCompression.decompress(protoChunkNorth, Palette.reversePalette(paletteNorth));
-			chunkNorth = waterOrNot(registriesNorth);
-			terrainNorth = terrainOrNot(registriesNorth);
-		} else {
-			chunkNorth = this.emptyChunk;
-			terrainNorth = this.emptyChunk;
-		}
+		long[] chunkEast = waterOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x + 1, chunk_z));
+		long[] terrainEast = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x + 1, chunk_z));
+		long[] chunkWest = waterOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x - 1, chunk_z));
+		long[] terrainWest = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x - 1, chunk_z));
+		long[] chunkSouth = waterOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z + 1));
+		long[] terrainSouth = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z + 1));
+		long[] chunkNorth = waterOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z - 1));
+		long[] terrainNorth = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z - 1));
 		for (int i = 0; i < water.length; i++) {
 			long current = water[i];
 			long nextZ = (i % 4 < 3) ? water[i + 1] : chunkSouth[i - 3];

@@ -6,7 +6,7 @@ public final class VideoSettings {
 	private VideoSettings() {}
 
 	// player can change
-	private static int	Render_Distance = 12;
+	private static int	Render_Distance = 16;
 
 	public static int getRender_distance() {
 		return Render_Distance;

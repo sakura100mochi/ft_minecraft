@@ -4,7 +4,7 @@ import org.lwjgl.glfw.GLFW;
 
 import data.Data;
 import engine.Window;
-
+import engine.Screenshot;
 import settings.options.controls.KeyBinds;
 import settings.options.video_settings.VideoSettings;
 import settings.world.WorldSettings;
@@ -12,20 +12,22 @@ import settings.world.WorldSettings;
 public final class KeyHandle {
 	private final Keyboard	keyboard;
 	private final Window	window;
+	private final Screenshot	screenshot;
 
 	public KeyHandle(Data data) throws Exception {
-		if (data.keyboard == null || data.window == null) {
+		if (data.keyboard == null || data.window == null || data.screenshot == null) {
 			throw new IllegalArgumentException("engine.input.KeyHandle | Keyboard or window is null");
 		}
 
 		this.keyboard = data.keyboard;
 		this.window = data.window;
+		this.screenshot = data.screenshot;
 
 		// Ensure we can capture the escape key being pressed below
 		GLFW.glfwSetInputMode(this.window.getWindowHandle(), GLFW.GLFW_STICKY_KEYS, GLFW.GLFW_TRUE);
 	}
 
-	public void update() {
+	public void update() throws Exception {
 		// Close the window if ESC is pressed
 		if (keyboard.isKeyDown(KeyBinds.EXIT) == true) {
 			GLFW.glfwSetWindowShouldClose(this.window.getWindowHandle(), true);
@@ -38,6 +40,10 @@ public final class KeyHandle {
 		if (keyboard.isKeyDown(KeyBinds.getChange_Game_Mode()) == true) {
 			WorldSettings.setNextGameMode();
 			keyboard.setKeyRelease(KeyBinds.getChange_Game_Mode());
+		}
+		if (keyboard.isKeyDown(KeyBinds.getScreenshot()) == true) {
+			screenshot.takeScreenshot();
+			keyboard.setKeyRelease(KeyBinds.getScreenshot());
 		}
 	}
 
@@ -75,5 +81,9 @@ public final class KeyHandle {
 
 	public boolean isChangeGameModeKey() {
 		return keyboard.isKeyDown(KeyBinds.getChange_Game_Mode());
+	}
+
+	public boolean isScreenshotKey() {
+		return keyboard.isKeyDown(KeyBinds.getScreenshot());
 	}
 }

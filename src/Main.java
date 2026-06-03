@@ -12,6 +12,7 @@ import worldgen.WorldgenThread;
 import worldgen.Worldgen;
 import engine.Window;
 import engine.FPScounter;
+import engine.Screenshot;
 import engine.input.Keyboard;
 import engine.input.Mouse;
 import engine.input.KeyHandle;
@@ -25,8 +26,7 @@ import gameManager.DebugScreen;
 import gameManager.Tick;
 import models.mesh.AllMeshes;
 import engine.render.Renderer;
-import utils.color.Grass_color;
-import utils.color.Water_color;
+import utils.color.block_colors.Block_colors;
 import event.Event;
 import physics_engine.Physics_engine;
 
@@ -35,7 +35,7 @@ public final class Main {
 
 	public static void main(String[] args) {
 		try {
-			long seed = 42L;
+			long seed = 3L;
 			data = new Data(seed);
 			init_thread();
 			init();
@@ -80,9 +80,9 @@ public final class Main {
 		data.uv = new UV(data);
 		data.font = new Font(data);
 		data.worldgen = new Worldgen(data);
-		data.grass_color = new Grass_color(data);
-		data.water_color = new Water_color(data);
+		data.block_colors = new Block_colors(data);
 		data.fpsCounter = new FPScounter();
+		data.screenshot = new Screenshot(data);
 		data.keyboard = new Keyboard(data);
 		data.mouse = new Mouse(data);
 		data.keyHandle = new KeyHandle(data);
@@ -122,8 +122,8 @@ public final class Main {
 		if (data.gameProcessThread != null) {
 			data.gameProcessThread.interrupt();
 		}
-		if (data.grass_color != null) {
-			data.grass_color.cleanup();
+		if (data.block_colors != null) {
+			data.block_colors.cleanup();
 		}
 		if (data.allMeshes != null) {
 			data.allMeshes.cleanup();

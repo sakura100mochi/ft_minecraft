@@ -7,12 +7,13 @@ public final class BitCompression {
 
 	public static long[] compress(int[] registries, Map<Integer, Integer> palette) {
 		int bits = Math.max(1, 32 - Integer.numberOfLeadingZeros(palette.size() - 1));
-		long[] compressed = new long[((registries.length * bits + 63) / 64) + 1];
+		long[] compressed = new long[((registries.length * bits + 63) / 64) + 2];
 		compressed[0] = ((long) bits << 32) | (registries.length & 0xffffffffL);
+		compressed[1] = (long)registries[0];
 		
-		int index = 1;
+		int index = 2;
 		int offset = 0;
-		for (int i = 0; i < registries.length; i++) {
+		for (int i = 1; i < registries.length; i++) {
 			int paletteIndex = palette.get(registries[i]);
 			compressed[index] |= ((long)paletteIndex << offset);
 			if (64 - offset < bits) {
@@ -31,12 +32,14 @@ public final class BitCompression {
 		int bits = (int)(compressed[0] >>> 32);
 		int length = (int)(compressed[0] & 0xffffffffL);
 		int[] registries = new int[length];
+		registries[0] = (int)compressed[1];
 
 		long mask = (bits == 64) ? -1L : ((1L << bits) - 1L);
 		
-		for (int i = 0; i < length; i++) {
-			int index = (i * bits) / 64 + 1;
-			int offset = (i * bits) % 64;
+		for (int i = 1; i < length; i++) {
+			long bitPosition = (long)(i - 1) * bits;
+			int index = (int)(bitPosition / 64) + 2;
+			int offset = (int)(bitPosition % 64);
 			long value = (compressed[index] >>> offset);
 			if (offset + bits > 64) {
 				value |= (compressed[index + 1] << (64 - offset));

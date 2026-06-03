@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL31;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import data.Data;
 import utils.color.HexColor;
@@ -109,8 +110,11 @@ public final class Fog extends UBO {
 			waterVision = 1.0;
 		}
 		this.FogEnvironmentalEnd = (float)(96 * Math.max(0.25, waterVision));
-		if (this.data.parser.tags.getTagFromIdentifier(biome).contains("has_closer_water_fog")) {
-			this.FogEnvironmentalEnd *= 0.85;
+		List<String> tags = this.data.parser.tags.getTagAndFileNameFromIdentifier(biome);
+		for (String tag : tags) {
+			if (tag.contains("has_closer_water_fog")) {
+				this.FogEnvironmentalEnd *= 0.85;
+			}
 		}
 
 		biome = biome.replace("minecraft:", "");

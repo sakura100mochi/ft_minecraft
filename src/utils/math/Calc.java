@@ -9,21 +9,55 @@ public final class Calc {
 		if (local_x < 0 || local_x >= SystemSettings.CHUNK_SIZE || local_y < 0 || local_y >= 10000 || local_z < 0 || local_z >= SystemSettings.CHUNK_SIZE) {
 			throw new IllegalArgumentException("utils.math.Calc.getIndex: local_x, local_y, or local_z is out of bounds");
 		}
-		return local_x + (local_z * SystemSettings.CHUNK_SIZE) + (local_y * SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE);
+		return (local_x | (local_z << 4) | (local_y << 8)) + 1;
 	}
 
-	public static int EuclideanDistance(int x1, int y1, int z1, int x2, int y2, int z2) {
-		return (int)Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
+	private static int getLocalXFromIndex(int index) {
+		index -= 1;
+		return index & 15;
 	}
 
-	public static int EuclideanDistance(int x1, int z1, int x2, int z2) {
-		return (int)Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(z1 - z2, 2));
+	private static int getLocalYFromIndex(int index) {
+		index -= 1;
+		return index >> 8;
 	}
 
-	public static int distance(int x1, int z1, int x2, int z2) {
-		int dx = x2 - x1;
-		int dz = z2 - z1;
-		return (int)Math.hypot(dx, dz);
+	private static int getLocalZFromIndex(int index) {
+		index -= 1;
+		return (index >> 4) & 15;
+	}
+
+	public static int getWorldXFromIndex(int index, int chunk_x) {
+		return getLocalXFromIndex(index) + chunk_x * SystemSettings.CHUNK_SIZE;
+	}
+
+	public static int getWorldYFromIndex(int index, int min_y) {
+		return getLocalYFromIndex(index) + min_y;
+	}
+
+	public static int getWorldZFromIndex(int index, int chunk_z) {
+		return getLocalZFromIndex(index) + chunk_z * SystemSettings.CHUNK_SIZE;
+	}
+
+	public static int ChebyshevDistance(int x1, int z1, int x2, int z2) {
+		return Math.max(Math.abs(x1 - x2), Math.abs(z1 - z2));
+	}
+
+	public static int ChebyshevDistance(int x1, int y1, int z1, int x2, int y2, int z2) {
+		return Math.max(Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)), Math.abs(z1 - z2));
+	}
+
+	public static double EuclideanDistance(int x1, int z1, int x2, int z2) {
+		int dx = x1 - x2;
+		int dz = z1 - z2;
+		return Math.sqrt(dx * dx + dz * dz);
+	}
+
+	public static double EuclideanDistance(double x1, double y1, double z1, double x2, double y2, double z2) {
+		double dx = x1 - x2;
+		double dy = y1 - y2;
+		double dz = z1 - z2;
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
 	public static int getChunkIndex(int world_block_pos) {

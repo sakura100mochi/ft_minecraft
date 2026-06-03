@@ -1,7 +1,6 @@
-package worldgen.generateBuffer;
+package worldgen.overworld.generateBuffer;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
 
@@ -11,8 +10,6 @@ import models.mesh.terrain.TerrainMesh;
 import settings.SystemSettings;
 import texture.UV;
 import utils.math.Calc;
-import utils.registry.BitCompression;
-import utils.registry.Palette;
 import utils.registry.Registry;
 import worldgen.WorldgenThread;
 
@@ -42,19 +39,27 @@ public final class Terrain {
 		this.emptyChunk = new long[this.LONGS_PER_CHUNK];
 	}
 	
-	public ByteBuffer generateBuffer(int chunk_x, int chunk_z, long[] protoChunk, Map<Integer, Integer> palette) throws Exception {
-		int[] registries = BitCompression.decompress(protoChunk, Palette.reversePalette(palette));
+	public ByteBuffer generateBuffer(int chunk_x, int chunk_z, int[] registries) throws Exception {
 		long[] terrain = terrainOrNot(registries);
 		long[] culled = addCulling(chunk_x, chunk_z, terrain);
 		return makeBuffer(chunk_x, chunk_z, culled, registries);
 	}
 
+	public ByteBuffer generateBufferWithoutCulling(int chunk_x, int chunk_z, int[] registries) throws Exception {
+		long[] terrain = terrainOrNot(registries);
+		long[] info = faceAdd(chunk_x, chunk_z, terrain);
+		return makeBuffer(chunk_x, chunk_z, info, registries);
+	}
+
 	private long[] terrainOrNot(int[] registries) {
+		if (registries == null) {
+			return this.emptyChunk;
+		}
 		long[] terrain = new long[this.LONGS_PER_CHUNK];
 		for (int i = 0; i < terrain.length; i++) {
 			long current = 0L;
 			for (int bit = 0; bit < 64; bit++) {
-				int index = i * 64 + bit;
+				int index = (i * 64 + bit) + 1;
 				if (index < registries.length) {
 					int blockId = registries[index];
 					if (blockId != this.airId && blockId != this.waterId) {
@@ -76,15 +81,11 @@ public final class Terrain {
 			int faceIndex = i / this.LONGS_PER_CHUNK;
 			int localI = i % this.LONGS_PER_CHUNK; 
 			while (index != 64) {
-				int localBitPos = localI * 64 + (63 - index);
-				int local_x = localBitPos % SystemSettings.CHUNK_SIZE;
-				int local_y = localBitPos / (SystemSettings.CHUNK_SIZE * SystemSettings.CHUNK_SIZE);
-				int local_z = (localBitPos / SystemSettings.CHUNK_SIZE) % SystemSettings.CHUNK_SIZE;
-				int x = chunk_x * SystemSettings.CHUNK_SIZE + local_x;
-				int y = this.min_y + local_y;
-				int z = chunk_z * SystemSettings.CHUNK_SIZE + local_z;
-				int registryIndex = Calc.getIndex(local_x, local_y, local_z);
-				int blockId = registries[registryIndex];
+				int localBitPos = (localI * 64 + (63 - index)) + 1;
+				int x = Calc.getWorldXFromIndex(localBitPos, chunk_x);
+				int y = Calc.getWorldYFromIndex(localBitPos, this.min_y);
+				int z = Calc.getWorldZFromIndex(localBitPos, chunk_z);
+				int blockId = registries[localBitPos];
 				writeQuad(vertexInfos, blockId, x, y, z, faceIndex);
 
 				currentLong &= ~(1L << (63 - index));
@@ -100,17 +101,17 @@ public final class Terrain {
 		BlockInfo blockInfo = this.data.parser.models.block.getBlockInfo(blockId);
 
 		if (faceIndex == 0) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "East", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "East", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 1) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "West", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "West", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 2) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "South", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "South", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 3) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "North", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "North", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 4) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "Up", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "Up", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		} else if (faceIndex == 5) {
-			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, this.data.grass_color, x, y, z, "Down", this.data.textureManager.blocksAtlas);
+			TerrainMesh.writeQuad(vertexInfos, blockInfo, this.uv, x, y, z, "Down", this.data.textureManager.blocksAtlas, this.data.block_colors);
 		}
 	}
 
@@ -129,38 +130,10 @@ public final class Terrain {
 		long extractX_0  = 0x0001000100010001L;
 		long extractX_15 = 0x8000800080008000L;
 
-		long[] chunkEast;
-		long[] protoChunkEast  = this.worldgenThread.getProtoChunkOrNull(chunk_x + 1, chunk_z);
-		Map<Integer, Integer> paletteEast = this.worldgenThread.getPaletteOrNull(chunk_x + 1, chunk_z);
-		if (protoChunkEast != null && paletteEast != null) {
-			chunkEast = terrainOrNot(BitCompression.decompress(protoChunkEast, Palette.reversePalette(paletteEast)));
-		} else {
-			chunkEast = this.emptyChunk;
-		}
-		long[] chunkWest;
-		long[] protoChunkWest  = this.worldgenThread.getProtoChunkOrNull(chunk_x - 1, chunk_z);
-		Map<Integer, Integer> paletteWest = this.worldgenThread.getPaletteOrNull(chunk_x - 1, chunk_z);
-		if (protoChunkWest != null && paletteWest != null) {
-			chunkWest = terrainOrNot(BitCompression.decompress(protoChunkWest, Palette.reversePalette(paletteWest)));
-		} else {
-			chunkWest = this.emptyChunk;
-		}
-		long[] chunkSouth;
-		long[] protoChunkSouth = this.worldgenThread.getProtoChunkOrNull(chunk_x, chunk_z + 1);
-		Map<Integer, Integer> paletteSouth = this.worldgenThread.getPaletteOrNull(chunk_x, chunk_z + 1);
-		if (protoChunkSouth != null && paletteSouth != null) {
-			chunkSouth = terrainOrNot(BitCompression.decompress(protoChunkSouth, Palette.reversePalette(paletteSouth)));
-		} else {
-			chunkSouth = this.emptyChunk;
-		}
-		long[] chunkNorth;
-		long[] protoChunkNorth = this.worldgenThread.getProtoChunkOrNull(chunk_x, chunk_z - 1);
-		Map<Integer, Integer> paletteNorth = this.worldgenThread.getPaletteOrNull(chunk_x, chunk_z - 1);
-		if (protoChunkNorth != null && paletteNorth != null) {
-			chunkNorth = terrainOrNot(BitCompression.decompress(protoChunkNorth, Palette.reversePalette(paletteNorth)));
-		} else {
-			chunkNorth = this.emptyChunk;
-		}
+		long[] chunkEast = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x + 1, chunk_z));
+		long[] chunkWest = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x - 1, chunk_z));
+		long[] chunkSouth = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z + 1));
+		long[] chunkNorth = terrainOrNot(this.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z - 1));
 		for (int i = 0; i < terrain.length; i++) {
 			long current = terrain[i];
 			long nextZ = (i % 4 < 3) ? terrain[i + 1] : chunkSouth[i - 3];
@@ -181,5 +154,22 @@ public final class Terrain {
 		}
 	
 		return culledTerrain;
+	}
+
+	private long[] faceAdd(int chunk_x, int chunk_z, long[] terrain) throws Exception {
+		long[] faceAdded = new long[this.LONGS_PER_CHUNK * 6];
+
+		for (int i = 0; i < terrain.length; i++) {
+			long current = terrain[i];
+
+			faceAdded[i]                            = current;
+			faceAdded[i + this.LONGS_PER_CHUNK]     = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 2] = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 3] = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 4] = current;
+			faceAdded[i + this.LONGS_PER_CHUNK * 5] = current;
+		}
+	
+		return faceAdded;
 	}
 }
