@@ -35,7 +35,7 @@ public final class Main {
 
 	public static void main(String[] args) {
 		try {
-			long seed = 42L;
+			long seed = 3L;
 			data = new Data(seed);
 			init_thread();
 			init();
