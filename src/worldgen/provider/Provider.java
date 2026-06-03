@@ -8,21 +8,21 @@ import utils.math.random.IRandom;
 public final class Provider {
 	private Provider() {}
 
-	public static int getHeightProvider(JSONObject json, IRandom random) throws Exception {
+	public static int getHeightProvider(JSONObject json, IRandom random, int min_y, int terrainHeight) throws Exception {
 		String type = json.getString("type");
 		if (type.equals("minecraft:constant")) {
-			return getVerticalAnchor(json.getJSONObject("value"));
+			return getVerticalAnchor(json.getJSONObject("value"), min_y, terrainHeight);
 		} else if (type.equals("minecraft:uniform")) {
-			int min_inclusive = getVerticalAnchor(json.getJSONObject("min_inclusive"));
-			int max_inclusive = getVerticalAnchor(json.getJSONObject("max_inclusive"));
+			int min_inclusive = getVerticalAnchor(json.getJSONObject("min_inclusive"), min_y, terrainHeight);
+			int max_inclusive = getVerticalAnchor(json.getJSONObject("max_inclusive"), min_y, terrainHeight);
 			if (max_inclusive == min_inclusive) {
 				return min_inclusive;
 			}
 			int range = max_inclusive - min_inclusive + 1;
 			return min_inclusive + random.nextInt(range);
 		} else if (type.equals("minecraft:biased_to_bottom") || type.equals("minecraft:very_biased_to_bottom")) {
-			int min_inclusive = getVerticalAnchor(json.getJSONObject("min_inclusive"));
-			int max_inclusive = getVerticalAnchor(json.getJSONObject("max_inclusive"));
+			int min_inclusive = getVerticalAnchor(json.getJSONObject("min_inclusive"), min_y, terrainHeight);
+			int max_inclusive = getVerticalAnchor(json.getJSONObject("max_inclusive"), min_y, terrainHeight);
 			int inner = json.has("inner") ? json.getInt("inner") : 1;
 			int range = max_inclusive - min_inclusive + 1;
 			if (range <= 1) {
@@ -46,8 +46,8 @@ public final class Provider {
 			}
 			return min_inclusive + result;
 		} else if (type.equals("minecraft:trapezoid")) {
-			int min_inclusive = getVerticalAnchor(json.getJSONObject("min_inclusive"));
-			int max_inclusive = getVerticalAnchor(json.getJSONObject("max_inclusive"));
+			int min_inclusive = getVerticalAnchor(json.getJSONObject("min_inclusive"), min_y, terrainHeight);
+			int max_inclusive = getVerticalAnchor(json.getJSONObject("max_inclusive"), min_y, terrainHeight);
 			int plateau = json.optInt("plateau", 0);
 			return (int)random.nextTrapezoid(min_inclusive, max_inclusive, plateau);
 		} else if (type.equals("minecraft:weighted_list")) {
@@ -67,7 +67,7 @@ public final class Provider {
 				JSONObject entry = distribution.getJSONObject(i);
 				currentWeight += entry.getInt("weight");
 				if (randomWeight < currentWeight) {
-					int data = getHeightProvider(entry, random);
+					int data = getHeightProvider(entry, random, min_y, terrainHeight);
 					return data;
 				}
 			}
@@ -77,13 +77,15 @@ public final class Provider {
 		}
 	}
 
-	public static int getVerticalAnchor(JSONObject json) throws Exception {
+	public static int getVerticalAnchor(JSONObject json, int min_y, int terrainHeight) throws Exception {
 		if (json.has("absolute") == true) {
 			return json.getInt("absolute");
 		} else if (json.has("above_bottom") == true) {
-			return json.getInt("above_bottom");
+			int value = json.getInt("above_bottom");
+			return min_y + value;
 		} else if (json.has("below_top") == true) {
-			return json.getInt("below_top");
+			int value = json.getInt("below_top");
+			return terrainHeight + min_y - value;
 		} else {
 			throw new IllegalArgumentException("Invalid VerticalAnchor");
 		}

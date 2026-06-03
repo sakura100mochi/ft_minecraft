@@ -272,7 +272,7 @@ public final class Placement_modifiers {
 	}
 
 	private void height_range(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
-		int height = Provider.getHeightProvider(json.getJSONObject("height"), this.data.random);
+		int height = Provider.getHeightProvider(json.getJSONObject("height"), this.data.random, this.min_y, this.terrainHeight);
 		for (int i = 0; i < positions_list.size(); i += 3) {
 			positions_list.set(i + 1, height);
 		}

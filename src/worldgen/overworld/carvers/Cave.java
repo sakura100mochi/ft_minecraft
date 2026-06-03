@@ -34,7 +34,7 @@ public final class Cave {
 		this.terrainHeight = data.parser.worldgen.overworld.terrainHeight;
 		this.probability = json.getFloat("probability");
 		this.y = json.getJSONObject("y");
-		this.lava_level = Provider.getVerticalAnchor(json.getJSONObject("lava_level"));
+		this.lava_level = Provider.getVerticalAnchor(json.getJSONObject("lava_level"), this.min_y, this.terrainHeight);
 		this.replaceable = json.getString("replaceable");
 		this.replaceable_blocks = Carvers.getReplaceableBlocks(data, this.replaceable);
 		this.yScale = json.get("yScale");
@@ -50,7 +50,7 @@ public final class Cave {
 			return;
 		}
 
-		int y = Provider.getHeightProvider(this.y, iRandom);
+		int y = Provider.getHeightProvider(this.y, iRandom, this.min_y, this.terrainHeight);
 		float yScale = Provider.getFloatProvider(this.yScale, iRandom);
 		float horizontal_radius_multiplier = Provider.getFloatProvider(this.horizontal_radius_multiplier, iRandom);
 		float vertical_radius_multiplier = Provider.getFloatProvider(this.vertical_radius_multiplier, iRandom);

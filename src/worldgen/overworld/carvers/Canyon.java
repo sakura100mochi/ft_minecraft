@@ -38,7 +38,7 @@ public final class Canyon {
 		this.terrainHeight = data.parser.worldgen.overworld.terrainHeight;
 		this.probability = json.getFloat("probability");
 		this.y = json.getJSONObject("y");
-		this.lava_level = Provider.getVerticalAnchor(json.getJSONObject("lava_level"));
+		this.lava_level = Provider.getVerticalAnchor(json.getJSONObject("lava_level"), this.min_y, this.terrainHeight);
 		this.replaceable = json.getString("replaceable");
 		this.replaceable_blocks = Carvers.getReplaceableBlocks(data, this.replaceable);
 		this.yScale = json.get("yScale");
@@ -59,7 +59,7 @@ public final class Canyon {
 			return;
 		}
 
-		int y = Provider.getHeightProvider(this.y, iRandom);
+		int y = Provider.getHeightProvider(this.y, iRandom, this.min_y, this.terrainHeight);
 		float yScale = Provider.getFloatProvider(this.yScale, iRandom);
 		float vertical_rotation = Provider.getFloatProvider(this.vertical_rotation, iRandom);
 		float distance_factor = Provider.getFloatProvider(this.distance_factor, iRandom);
