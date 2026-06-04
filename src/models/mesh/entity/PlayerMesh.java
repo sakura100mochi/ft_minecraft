@@ -16,12 +16,13 @@ public final class PlayerMesh {
 	private PlayerMesh() {}
 
 	protected static ByteBuffer createVertexInfos(Data data, TextureInfo textureInfo) throws Exception {
+		return createVertexInfos(data, textureInfo, data.player.getPosition(), data.player.getDirection());
+	}
+
+	protected static ByteBuffer createVertexInfos(Data data, TextureInfo textureInfo, float[] playerPos, float[] playerDir) throws Exception {
 		if (textureInfo == null) {
 			throw new IllegalArgumentException("models.mesh.entity.PlayerMesh.createVertexInfos: textureInfo is null");
 		}
-
-		float[] playerPos = data.player.getPosition();
-		float[] playerDir = data.player.getDirection();
 
 		ByteBuffer vertexInfos = MemoryUtil.memAlloc(VERTEX_COUNT);
 		// head front

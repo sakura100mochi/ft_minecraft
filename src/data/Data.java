@@ -28,6 +28,11 @@ import utils.color.Grass_color;
 import utils.color.Water_color;
 import utils.math.random.IRandom;
 import utils.math.random.XoroshiroRandom;
+import network.ClientManager;
+import network.ClientNetworkThread;
+import network.ServerThread;
+import java.util.UUID;
+import java.util.HashMap;
 
 public final class Data {
 	public final long		seed;
@@ -60,6 +65,11 @@ public final class Data {
 
 	public WorldgenThread	worldgenThread = null;
 	public GameProcessThread	gameProcessThread = null;
+
+	public ServerThread					serverThread = null;
+	public ClientNetworkThread			clientNetworkThread = null;
+	public ClientManager				clientManager = null;
+	public HashMap<UUID, Player>	remotePlayers = null;
 
 	public Data(long seed) {
 		this.seed = seed;

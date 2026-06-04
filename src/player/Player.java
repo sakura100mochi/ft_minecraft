@@ -32,6 +32,24 @@ public final class Player {
 		setCameraPos();
 	}
 
+	private Player(Data data, boolean isRemote) throws Exception {
+		if (data.keyHandle == null || data.mouseHandle == null || data.textureManager == null) {
+			throw new IllegalArgumentException("remotePlayer.Player | keyHandle, mouseHandle or textureManager is null");
+		}
+
+		this.playerTextureInfo = data.textureManager.entityAtlas.getTextureInfo("player/wide/steve.png");
+		if (this.playerTextureInfo == null) {
+			throw new IllegalStateException("player.Player | Failed to load player texture");
+		}
+		this.data = data;
+		this.playerMovement = null;
+		this.direction[2] = 1f;
+	}
+
+	public static Player createRemotePlayer(Data data) throws Exception {
+		return new Player(data, false);
+	}
+
 	private boolean checkIsRunning() throws Exception {
 		if (this.isRunning == true) {
 			return true;
@@ -47,7 +65,7 @@ public final class Player {
 	}
 
 	public void update(float dt) throws Exception {
-		if (checkIsRunning() == true) {
+		if (checkIsRunning() == true && this.playerMovement != null) {
 			playerMovement.update(dt, this.position, this.direction);
 			setCameraPos();
 		}
@@ -67,6 +85,20 @@ public final class Player {
 
 	public TextureInfo getPlayerTextureInfo() {
 		return playerTextureInfo;
+	}
+
+	public void setPosition(float x, float y, float z) {
+		this.position[0] = x;
+		this.position[1] = y;
+		this.position[2] = z;
+		setCameraPos();
+	}
+
+	public void setDirection(float x, float y, float z) {
+		this.direction[0] = x;
+		this.direction[1] = y;
+		this.direction[2] = z;
+		setCameraPos();
 	}
 
 	private void setCameraPos() {

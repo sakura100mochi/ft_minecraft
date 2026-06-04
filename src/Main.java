@@ -8,8 +8,13 @@ import texture.TextureManager;
 import texture.UV;
 import thread.game_process.GameProcessThread;
 import font.Font;
+import network.ClientManager;
+import network.ClientNetworkThread;
+import network.ServerThread;
+import settings.ServerSettings;
 import worldgen.WorldgenThread;
 import worldgen.Worldgen;
+import java.util.HashMap;
 import engine.Window;
 import engine.FPScounter;
 import engine.input.Keyboard;
@@ -64,14 +69,28 @@ public final class Main {
 		data.gameProcessThread = new GameProcessThread();
 		data.gameProcessThread.setUncaughtExceptionHandler(threadHandler);
 		data.gameProcessThread.setData(data);
+
+		data.serverThread = new ServerThread();
+		data.serverThread.setUncaughtExceptionHandler(threadHandler);
+		data.serverThread.setData(data);
+
+		data.clientNetworkThread = new ClientNetworkThread();
+		data.clientNetworkThread.setUncaughtExceptionHandler(threadHandler);
+		data.clientNetworkThread.setData(data);
 	}
 
 	private static void start_threads() {
 		data.worldgenThread.start();
 		data.gameProcessThread.start();
+		if (ServerSettings.MULTIPLAYER_ENABLED) {
+			data.serverThread.start();
+			data.clientNetworkThread.start();
+		}
 	}
 
 	private static void init() throws Exception {
+		data.remotePlayers = new HashMap<>();
+		data.clientManager = new ClientManager();
 		data.window = new Window();
 		data.event = new Event();
 		data.tick = new Tick(data);
@@ -121,6 +140,15 @@ public final class Main {
 		}
 		if (data.gameProcessThread != null) {
 			data.gameProcessThread.interrupt();
+		}
+		if (data.serverThread != null) {
+			data.serverThread.interrupt();
+		}
+		if (data.clientNetworkThread != null) {
+			data.clientNetworkThread.interrupt();
+		}
+		if (data.clientManager != null) {
+			data.clientManager.disconnectAll();
 		}
 		if (data.grass_color != null) {
 			data.grass_color.cleanup();
