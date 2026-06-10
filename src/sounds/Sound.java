@@ -10,6 +10,7 @@ import org.lwjgl.system.MemoryUtil;
 public final class Sound {
 	private final int	buffer;
 	private final int	source;
+	private long		startTime = 0L;
 
 	protected Sound(String file_path) throws Exception {
 		IntBuffer channels = MemoryUtil.memAllocInt(1);
@@ -43,8 +44,26 @@ public final class Sound {
 		MemoryUtil.memFree(decoded);
 	}
 
-	protected void play() {
+	public void play() {
+		this.startTime = System.currentTimeMillis();
 		AL10.alSourcePlay(this.source);
+	}
+
+	public void stop() {
+		AL10.alSourceStop(this.source);
+		this.startTime = 0L;
+	}
+
+	public boolean isPlaying() {
+		return AL10.alGetSourcei(this.source, AL10.AL_SOURCE_STATE) == AL10.AL_PLAYING;
+	}
+
+	public long passedTime() {
+		if (isPlaying() == true) {
+			return System.currentTimeMillis() - this.startTime;
+		} else {
+			return Long.MAX_VALUE;
+		}
 	}
 
 	protected void cleanup() {

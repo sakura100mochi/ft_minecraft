@@ -17,6 +17,7 @@ public final class SoundsManager {
 	private final long	device;
 	private final long	context;
 	private final Map<String, Sound>	sounds = new HashMap<>();
+	public final PlayerStepSounds	playerStepSounds;
 
 	public SoundsManager(Data data) throws Exception {
 		this.device = ALC10.alcOpenDevice((ByteBuffer)null);
@@ -40,18 +41,19 @@ public final class SoundsManager {
 
 		ALCCapabilities alcCapabilities = ALC.createCapabilities(this.device);
 		AL.createCapabilities(alcCapabilities);
+
+		this.playerStepSounds = new PlayerStepSounds(data, this);
 	}
 
 	// ex: play("1.21.11/assets/minecraft/sounds/mob/zombie/say1.ogg");
-	public void play(String file_path) throws Exception {
-		Sound sound = this.sounds.computeIfAbsent(file_path, value -> {
+	public Sound getSound(String file_path) throws Exception {
+		return this.sounds.computeIfAbsent(file_path, value -> {
 			try {
 				return new Sound(file_path);
 			} catch (Exception e) {
 				throw new RuntimeException("SoundsManager : Failed to load sound : " + file_path, e);
 			}
 		});
-		sound.play();
 	}
 
 	public void cleanup() {

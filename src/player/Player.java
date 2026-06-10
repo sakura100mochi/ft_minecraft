@@ -5,6 +5,7 @@ import data.info.TextureInfo;
 import player.movement.PlayerMovement;
 import settings.options.video_settings.VideoSettings;
 import utils.math.Calc;
+import utils.registry.Registry;
 
 public final class Player {
 	private final Data				data;
@@ -15,6 +16,8 @@ public final class Player {
 	private TextureInfo				playerTextureInfo;
 	public final static float[]		collision = new float[] {0.6f, 1.8f, 0.6f};
 	private boolean					isRunning = false;
+	private int						belowBlockId;
+	private float					counter = 0f;
 
 	public Player(Data data) throws Exception {
 		if (data.keyHandle == null || data.mouseHandle == null || data.textureManager == null) {
@@ -30,6 +33,7 @@ public final class Player {
 		CalculateSpawnPoint.getSpawnPosition(this.position);
 		CalculateSpawnPoint.getSpawnDirection(this.direction);
 		setCameraPos();
+		this.belowBlockId = Registry.getId("minecraft:air");
 	}
 
 	private boolean checkIsRunning() throws Exception {
@@ -50,6 +54,12 @@ public final class Player {
 		if (checkIsRunning() == true) {
 			playerMovement.update(dt, this.position, this.direction);
 			setCameraPos();
+			if (this.data.physics_engine.playerMotion.isOnGround() == true &&
+				this.data.physics_engine.playerMotion.getMoveDistance() > counter) {
+				this.belowBlockId = this.data.worldgenThread.getBlockRegistryId((int)Math.floor(this.position[0]), (int)Math.floor(this.position[1]) - 1, (int)Math.floor(this.position[2]));
+				this.data.soundsManager.playerStepSounds.play();
+				counter += 1.5f;
+			}
 		}
 	}
 
@@ -67,6 +77,10 @@ public final class Player {
 
 	public TextureInfo getPlayerTextureInfo() {
 		return playerTextureInfo;
+	}
+
+	public int getBelowBlockId() {
+		return belowBlockId;
 	}
 
 	private void setCameraPos() {
