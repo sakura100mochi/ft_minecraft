@@ -26,6 +26,7 @@ import gameManager.Tick;
 import engine.render.RenderChunkDecider;
 import engine.render.Renderer;
 import utils.color.block_colors.Block_colors;
+import sounds.SoundsManager;
 
 public final class Data {
 	public final long		seed;
@@ -34,6 +35,7 @@ public final class Data {
 	public Event			event = null;
 	public Tick				tick = null;
 	public Parser			parser = null;
+	public SoundsManager	soundsManager = null;
 	public TextureManager	textureManager = null;
 	public UV				uv = null;
 	public Font				font = null;

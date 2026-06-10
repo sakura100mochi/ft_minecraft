@@ -5,8 +5,20 @@ mv "$dir" "1.21.11"
 rm -rf minecraft-assets.zip
 curl --create-dirs -o lib/jar/lwjgl-glfw.jar https://build.lwjgl.org/stable/bin/lwjgl-glfw/lwjgl-glfw.jar
 curl --create-dirs -o lib/jar/lwjgl-opengl.jar https://build.lwjgl.org/stable/bin/lwjgl-opengl/lwjgl-opengl.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-linux-arm32.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-linux-arm32.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-linux-arm64.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-linux-arm64.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-linux-ppc64le.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-linux-ppc64le.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-linux-riscv64.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-linux-riscv64.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-linux.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-linux.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-macos-arm64.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-macos-arm64.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-macos.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-macos.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-windows-arm64.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-windows-arm64.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-windows-x86.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-windows-x86.jar
+curl --create-dirs -o lib/jar/lwjgl-openal-natives-windows.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal-natives-windows.jar
+curl --create-dirs -o lib/jar/lwjgl-openal.jar https://build.lwjgl.org/stable/bin/lwjgl-openal/lwjgl-openal.jar
 curl --create-dirs -o lib/jar/lwjgl-stb.jar https://build.lwjgl.org/stable/bin/lwjgl-stb/lwjgl-stb.jar
 curl --create-dirs -o lib/jar/lwjgl.jar https://build.lwjgl.org/stable/bin/lwjgl/lwjgl.jar
+curl --create-dirs -o lib/jar/org.jar https://maven.jans.io/maven/org/json/json/20231013/json-20231013.jar
 curl --create-dirs -o lib/natives_linux_arm32/libglfw.so https://build.lwjgl.org/stable/linux/arm32/libglfw.so
 curl --create-dirs -o lib/natives_linux_arm32/liblwjgl_opengl.so https://build.lwjgl.org/stable/linux/arm32/liblwjgl_opengl.so
 curl --create-dirs -o lib/natives_linux_arm32/liblwjgl_stb.so https://build.lwjgl.org/stable/linux/arm32/liblwjgl_stb.so
@@ -51,4 +63,3 @@ curl --create-dirs -o lib/natives_windows_x86/libglfw.dll https://build.lwjgl.or
 curl --create-dirs -o lib/natives_windows_x86/liblwjgl_opengl.dll https://build.lwjgl.org/stable/windowsx/x86/liblwjgl_opengl.dll
 curl --create-dirs -o lib/natives_windows_x86/liblwjgl_stb.dll https://build.lwjgl.org/stable/windowsx/x86/liblwjgl_stb.dll
 curl --create-dirs -o lib/natives_windows_x86/liblwjgl.dll https://build.lwjgl.org/stable/windowsx/x86/liblwjgl.dll
-curl --create-dirs -o lib/jar/org.jar https://maven.jans.io/maven/org/json/json/20231013/json-20231013.jar

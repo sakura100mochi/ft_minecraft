@@ -8,10 +8,4 @@ public final class SystemSettings {
 	public static final int		CHUNK_SIZE = 16;
 	public static final int		BIOME_SCALE = 4;
 	public static final int		BLOCK_PIXEL_SIZE = 16;
-	public static final int		TICK_PER_SECOND = 20;
-	public static final float	FLYING_SPEED = 0.5f;
-	public static final float	FLYING_SPRINT_SPEED = 1.0f;
-	public static final float	WALK_SPEED = 0.2f;
-	public static final float	SPRINT_SPEED = 0.4f;
-	public static final float	JUMP_POWER = 0.4f;
 }

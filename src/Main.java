@@ -29,6 +29,7 @@ import engine.render.Renderer;
 import utils.color.block_colors.Block_colors;
 import event.Event;
 import physics_engine.Physics_engine;
+import sounds.SoundsManager;
 
 public final class Main {
 	public static Data data;
@@ -76,6 +77,7 @@ public final class Main {
 		data.event = new Event();
 		data.tick = new Tick(data);
 		data.parser = new Parser("1.21.11/");
+		data.soundsManager = new SoundsManager(data);
 		data.textureManager = new TextureManager("1.21.11/assets/minecraft/textures/");
 		data.uv = new UV(data);
 		data.font = new Font(data);
@@ -127,6 +129,9 @@ public final class Main {
 		}
 		if (data.allMeshes != null) {
 			data.allMeshes.cleanup();
+		}
+		if (data.soundsManager != null) {
+			data.soundsManager.cleanup();
 		}
 		if (data.textureManager != null) {
 			data.textureManager.cleanup();
