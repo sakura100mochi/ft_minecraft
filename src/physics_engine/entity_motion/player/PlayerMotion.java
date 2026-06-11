@@ -65,13 +65,25 @@ public final class PlayerMotion implements ITickEventListener {
 			this.velocity[1] = -(float)Motion_of_entities.PLAYERS_ENTITIES.terminal_velocity_per_tick;
 		}
 
-		double distance = Calc.EuclideanDistance(this.velocity[0], this.velocity[2], 0f, 0f);
-		if (distance > this.currentSpeed) {
-			this.velocity[0] = this.velocity[0] * (float)(this.currentSpeed / distance);
-			this.velocity[2] = this.velocity[2] * (float)(this.currentSpeed / distance);
-			this.moveDistance += Calc.EuclideanDistance(this.velocity[0], this.velocity[1], this.velocity[2], 0f, 0f, 0f);
+		if (WorldSettings.isFlying() == false) {
+			double distance = Calc.EuclideanDistance(this.velocity[0], this.velocity[2], 0f, 0f);
+			if (distance > this.currentSpeed) {
+				this.velocity[0] = this.velocity[0] * (float)(this.currentSpeed / distance);
+				this.velocity[2] = this.velocity[2] * (float)(this.currentSpeed / distance);
+				this.moveDistance += Calc.EuclideanDistance(this.velocity[0], this.velocity[1], this.velocity[2], 0f, 0f, 0f);
+			} else {
+				this.moveDistance += distance;
+			}
 		} else {
-			this.moveDistance += distance;
+			double distance = Calc.EuclideanDistance(this.velocity[0], this.velocity[1], this.velocity[2], 0f, 0f, 0f);
+			if (distance > this.currentSpeed) {
+				this.velocity[0] = this.velocity[0] * (float)(this.currentSpeed / distance);
+				this.velocity[1] = this.velocity[1] * (float)(this.currentSpeed / distance);
+				this.velocity[2] = this.velocity[2] * (float)(this.currentSpeed / distance);
+				this.moveDistance += Calc.EuclideanDistance(this.velocity[0], this.velocity[1], this.velocity[2], 0f, 0f, 0f);
+			} else {
+				this.moveDistance += distance;
+			}
 		}
 		
 		this.position[0] += this.velocity[0];
