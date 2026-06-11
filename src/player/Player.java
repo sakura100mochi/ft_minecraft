@@ -58,7 +58,7 @@ public final class Player {
 				this.data.physics_engine.playerMotion.getMoveDistance() > counter) {
 				this.belowBlockId = this.data.worldgenThread.getBlockRegistryId((int)Math.floor(this.position[0]), (int)Math.floor(this.position[1]) - 1, (int)Math.floor(this.position[2]));
 				this.data.soundsManager.playerStepSounds.play();
-				counter += 1.5f;
+				counter += 1.8f;
 			}
 		}
 	}
