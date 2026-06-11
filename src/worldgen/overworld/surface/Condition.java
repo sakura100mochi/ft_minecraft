@@ -100,25 +100,30 @@ public final class Condition {
 						int myHeight = height_map[local_x][local_z];
 						
 						int northZ = local_z - 1;
+						int northHeight = this.min_y;
 						if (northZ < 0) {
 							registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z - 1);
 							if (registries == null) {
 								return false;
 							}
-							height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z - 1, registries);
-							northZ += 16;
+							int[][] north_height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z - 1, registries);
+							northHeight = north_height_map[local_x][northZ + 16];
+						} else {
+							northHeight = height_map[local_x][northZ];
 						}
-						int northHeight = height_map[local_x][northZ];
+
 						int eastX = local_x + 1;
+						int eastHeight = this.min_y;
 						if (eastX >= 16) {
 							registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x + 1, chunk_z);
 							if (registries == null) {
 								return false;
 							}
-							height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x + 1, chunk_z, registries);
-							eastX -= 16;
+							int[][] east_height_map = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x + 1, chunk_z, registries);
+							eastHeight = east_height_map[eastX - 16][local_z];
+						} else {
+							eastHeight = height_map[eastX][local_z];
 						}
-						int eastHeight = height_map[eastX][local_z];
 						
 						return (Math.abs(myHeight - northHeight) > 3) || (Math.abs(myHeight - eastHeight) > 3);
 					} catch (Exception e) {
