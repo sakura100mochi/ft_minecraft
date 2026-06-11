@@ -138,7 +138,10 @@ public final class Placement_modifiers {
 
 	private void surface_water_depth_filter(int chunk_x, int chunk_z, List<Integer> positions_list, JSONObject json) throws Exception {
 		int max_water_depth = json.getInt("max_water_depth");
-		int[] registries = this.data.worldgenThread.getRegistries(chunk_x, chunk_z);
+		int[] registries = this.data.worldgenThread.getRegistriesOrNull(chunk_x, chunk_z);
+		if (registries == null) {
+			throw new IllegalStateException("worldgen.overworld.features.placed_feature.Placement_modifiers | surface_water_depth_filter: Registries not loaded for chunk (" + chunk_x + ", " + chunk_z + ")");
+		}
 		int[][] WORLD_SURFACE_WG = this.data.worldgenThread.getWORLD_SURFACE_WG(chunk_x, chunk_z, registries);
 		int[][] OCEAN_FLOOR_WG = this.data.worldgenThread.getOCEAN_FLOOR_WG(chunk_x, chunk_z, registries);
 		List<Integer> result = new ArrayList<>(positions_list.size());

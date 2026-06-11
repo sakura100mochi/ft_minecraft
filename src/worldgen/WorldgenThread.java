@@ -219,10 +219,15 @@ public final class WorldgenThread extends Thread {
 				this.data.worldgen.overworld.carvers.generateCarvers(x, z, current_registries);
 			}
 		}
+		for (int x = chunk_x - 2; x <= chunk_x + 2; x++) {
+			for (int z = chunk_z - 2; z <= chunk_z + 2; z++) {
+				int[] current_registries = getRegistries(x, z);
+				this.data.worldgen.overworld.base_terrain.generateBaseTerrain(x, z, current_registries);
+			}
+		}
 		for (int x = chunk_x - 1; x <= chunk_x + 1; x++) {
 			for (int z = chunk_z - 1; z <= chunk_z + 1; z++) {
 				int[] current_registries = getRegistries(x, z);
-				this.data.worldgen.overworld.base_terrain.generateBaseTerrain(x, z, current_registries);
 				this.data.worldgen.overworld.surface.generateSurface(x, z, current_registries);
 				this.data.worldgen.overworld.carvers.generateAppliedCarversCache(x, z, current_registries);
 				this.data.worldgen.overworld.base_liquid.generateBaseLiquid(x, z, current_registries);
