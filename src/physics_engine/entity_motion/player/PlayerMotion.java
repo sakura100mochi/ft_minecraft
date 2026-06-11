@@ -7,14 +7,15 @@ import physics_engine.Physics_engine;
 import physics_engine.config.Motion_of_entities;
 import settings.world.WorldSettings;
 import utils.math.Calc;
+import utils.math.Vector3f;
 
 public final class PlayerMotion implements ITickEventListener {
 	private final Data				data;
 	private final Physics_engine	physics_engine;
 	private final PlayerSpeed		playerSpeed;
 	private final PlayerJumpHeight	playerJumpHeight;
-	public float[]					position = new float[] {0f, 0f, 0f};
-	private float[]					velocity = new float[] {0f, 0f, 0f};
+	public final float[]			position = new float[] {0f, 0f, 0f};
+	private final float[]			velocity = new float[] {0f, 0f, 0f};
 	private double					currentSpeed;
 	private double					jumpHeight;
 	private boolean					isOnGround;
@@ -135,25 +136,6 @@ public final class PlayerMotion implements ITickEventListener {
 
 	private void addCollision() throws Exception {
 		if (WorldSettings.getGameMode() != WorldSettings.GameMode.SPECTATOR) {
-			if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + this.velocity[0], this.position[1], this.position[2]) == true) {
-				float prevVelocityX = this.velocity[0];
-				this.velocity[0] = 0f;
-				if (prevVelocityX <= -0.01f) {
-					for (float i = -0.01f; i >= prevVelocityX; i -= 0.01f) {
-						if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + i, this.position[1], this.position[2]) == true) {
-							this.velocity[0] += i + 0.01f;
-							break;
-						}
-					}
-				} else if (prevVelocityX >= 0.01f) {
-					for (float i = 0.01f; i <= prevVelocityX; i += 0.01f) {
-						if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + i, this.position[1], this.position[2]) == true) {
-							this.velocity[0] += i - 0.01f;
-							break;
-						}
-					}
-				}
-			}
 			if (this.physics_engine.collision.isCollidingPlayer(this.position[0], this.position[1] + this.velocity[1], this.position[2]) == true) {
 				float prevVelocityY = this.velocity[1];
 				this.velocity[1] = 0f;
@@ -173,19 +155,38 @@ public final class PlayerMotion implements ITickEventListener {
 					}
 				}
 			}
-			if (this.physics_engine.collision.isCollidingPlayer(this.position[0], this.position[1], this.position[2] + this.velocity[2]) == true) {
+			if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + this.velocity[0], this.position[1] + this.velocity[1], this.position[2]) == true) {
+				float prevVelocityX = this.velocity[0];
+				this.velocity[0] = 0f;
+				if (prevVelocityX <= -0.01f) {
+					for (float i = -0.01f; i >= prevVelocityX; i -= 0.01f) {
+						if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + i, this.position[1] + this.velocity[1], this.position[2]) == true) {
+							this.velocity[0] += i + 0.01f;
+							break;
+						}
+					}
+				} else if (prevVelocityX >= 0.01f) {
+					for (float i = 0.01f; i <= prevVelocityX; i += 0.01f) {
+						if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + i, this.position[1] + this.velocity[1], this.position[2]) == true) {
+							this.velocity[0] += i - 0.01f;
+							break;
+						}
+					}
+				}
+			}
+			if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + this.velocity[0], this.position[1] + this.velocity[1], this.position[2] + this.velocity[2]) == true) {
 				float prevVelocityZ = this.velocity[2];
 				this.velocity[2] = 0f;
 				if (prevVelocityZ <= -0.01f) {
 					for (float i = -0.01f; i >= prevVelocityZ; i -= 0.01f) {
-						if (this.physics_engine.collision.isCollidingPlayer(this.position[0], this.position[1], this.position[2] + i) == true) {
+						if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + this.velocity[0], this.position[1] + this.velocity[1], this.position[2] + i) == true) {
 							this.velocity[2] += i + 0.01f;
 							break;
 						}
 					}
 				} else if (prevVelocityZ >= 0.01f) {
 					for (float i = 0.01f; i <= prevVelocityZ; i += 0.01f) {
-						if (this.physics_engine.collision.isCollidingPlayer(this.position[0], this.position[1], this.position[2] + i) == true) {
+						if (this.physics_engine.collision.isCollidingPlayer(this.position[0] + this.velocity[0], this.position[1] + this.velocity[1], this.position[2] + i) == true) {
 							this.velocity[2] += i - 0.01f;
 							break;
 						}
@@ -233,6 +234,8 @@ public final class PlayerMotion implements ITickEventListener {
 
 	private void forward(float[] copyDirection) throws Exception {
 		if (WorldSettings.isFlying() == false) {
+			copyDirection[1] = 0f;
+			Vector3f.normalize(copyDirection);
 			this.velocity[0] += copyDirection[0] * this.currentSpeed;
 			this.velocity[2] += copyDirection[2] * this.currentSpeed;
 		} else {
@@ -244,6 +247,8 @@ public final class PlayerMotion implements ITickEventListener {
 
 	private void backward(float[] copyDirection) throws Exception {
 		if (WorldSettings.isFlying() == false) {
+			copyDirection[1] = 0f;
+			Vector3f.normalize(copyDirection);
 			this.velocity[0] -= copyDirection[0] * this.currentSpeed;
 			this.velocity[2] -= copyDirection[2] * this.currentSpeed;
 		} else {
@@ -254,11 +259,15 @@ public final class PlayerMotion implements ITickEventListener {
 	}
 
 	private void left(float[] copyDirection) throws Exception {
+		copyDirection[1] = 0f;
+		Vector3f.normalize(copyDirection);
 		this.velocity[0] += copyDirection[2] * this.currentSpeed;
 		this.velocity[2] -= copyDirection[0] * this.currentSpeed;
 	}
 
 	private void right(float[] copyDirection) throws Exception {
+		copyDirection[1] = 0f;
+		Vector3f.normalize(copyDirection);
 		this.velocity[0] -= copyDirection[2] * this.currentSpeed;
 		this.velocity[2] += copyDirection[0] * this.currentSpeed;
 	}
