@@ -9,6 +9,7 @@ import models.mesh.position_color.Position_colorMeshManager;
 import models.mesh.gui.GuiMeshManager;
 import models.mesh.entity.EntityMeshManager;
 import models.mesh.rendertype_clouds.Rendertype_cloudsMeshManager;
+import models.mesh.position_tex_color.Position_tex_colorMeshManager;
 
 public final class AllMeshes {
 	public final Data			data;
@@ -20,6 +21,7 @@ public final class AllMeshes {
 	public final GuiMeshManager				guiMesh;
 	public final EntityMeshManager			entityMesh;
 	public final Rendertype_cloudsMeshManager	rendertype_cloudsMesh;
+	public final Position_tex_colorMeshManager	position_tex_colorMesh;
 
 	public AllMeshes(Data data) throws Exception {
 		if (data == null) {
@@ -34,6 +36,7 @@ public final class AllMeshes {
 		this.guiMesh = new GuiMeshManager(data);
 		this.entityMesh = new EntityMeshManager(data);
 		this.rendertype_cloudsMesh = new Rendertype_cloudsMeshManager(data);
+		this.position_tex_colorMesh = new Position_tex_colorMeshManager(data);
 	}
 
 	public void update() throws Exception {
@@ -53,5 +56,6 @@ public final class AllMeshes {
 		this.guiMesh.cleanup();
 		this.entityMesh.cleanup();
 		this.rendertype_cloudsMesh.cleanup();
+		this.position_tex_colorMesh.cleanup();
 	}
 }

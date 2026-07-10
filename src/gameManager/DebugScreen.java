@@ -2,6 +2,7 @@ package gameManager;
 
 import data.Data;
 import settings.world.WorldSettings;
+import utils.registry.Registry;
 
 public final class DebugScreen {
 	private final Data			data;
@@ -55,6 +56,7 @@ public final class DebugScreen {
 		float[] playerPos = data.player.getPosition();
 		float[] cameraDirection = data.camera.getDirection();
 		String biome = data.worldgen.overworld.biome.getBiome((int)Math.floor(cameraPos[0]), (int)Math.floor(cameraPos[1]), (int)Math.floor(cameraPos[2]));
+		String targetedBlock = Registry.getName(data.player.getTargetedBlockId());
 
 		return new String[] {
 			"Debug Info",
@@ -62,6 +64,7 @@ public final class DebugScreen {
 			"Camera Position : " + cameraPos[0] + ", " + cameraPos[1] + ", " + cameraPos[2],
 			"Player Position : " + playerPos[0] + ", " + playerPos[1] + ", " + playerPos[2],
 			"Camera Direction : " + cameraDirection[0] + ", " + cameraDirection[1] + ", " + cameraDirection[2],
+			"Targeted Block : " + targetedBlock,
 			"Camera Biome : " + biome,
 			"Game Mode : " + WorldSettings.getGameMode().name()
 		};

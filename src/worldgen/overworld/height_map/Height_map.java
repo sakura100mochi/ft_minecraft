@@ -25,6 +25,9 @@ public final class Height_map {
 	}
 
 	public int[][] generateWORLD_SURFACE_WG(int chunk_x, int chunk_z, int[] registries, int[][] current) throws Exception {
+		if ((registries[0] & Overworld.FLAG_BASE_TERRAIN) == 0) {
+			throw new IllegalStateException("worldgen.overworld.height_map.Height_map | generateWORLD_SURFACE_WG called before base terrain is generated");
+		}
 		if (((registries[0] & Overworld.FLAG_FEATURES) != 0) && ((registries[0] & Overworld.FLAG_WORLD_SURFACE_WG_FEATURES) != 0)) {
 			return current;
 		} else if (((registries[0] & Overworld.FLAG_FEATURES) == 0) && 
@@ -99,7 +102,10 @@ public final class Height_map {
 		return current;
 	}
 
-		public int[][] generateOCEAN_FLOOR_WG(int chunk_x, int chunk_z, int[] registries, int[][] current) throws Exception {
+	public int[][] generateOCEAN_FLOOR_WG(int chunk_x, int chunk_z, int[] registries, int[][] current) throws Exception {
+		if ((registries[0] & Overworld.FLAG_BASE_TERRAIN) == 0) {
+			throw new IllegalStateException("worldgen.overworld.height_map.Height_map | generateOCEAN_FLOOR_WG called before base terrain is generated");
+		}
 		if (((registries[0] & Overworld.FLAG_FEATURES) != 0) && ((registries[0] & Overworld.FLAG_OCEAN_FLOOR_WG_FEATURES) != 0)) {
 			return current;
 		} else if (((registries[0] & Overworld.FLAG_FEATURES) == 0) && 

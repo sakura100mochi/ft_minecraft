@@ -18,6 +18,7 @@ public final class Player {
 	private boolean					isRunning = false;
 	private int						belowBlockId;
 	private float					counter = 0f;
+	private int						targetedBlockId;
 
 	public Player(Data data) throws Exception {
 		if (data.keyHandle == null || data.mouseHandle == null || data.textureManager == null) {
@@ -34,6 +35,7 @@ public final class Player {
 		CalculateSpawnPoint.getSpawnDirection(this.direction);
 		setCameraPos();
 		this.belowBlockId = Registry.getId("minecraft:air");
+		this.targetedBlockId = Registry.getId("minecraft:air");
 	}
 
 	private boolean checkIsRunning() throws Exception {
@@ -54,11 +56,12 @@ public final class Player {
 		if (checkIsRunning() == true) {
 			playerMovement.update(dt, this.position, this.direction);
 			setCameraPos();
+			this.targetedBlockId = this.data.physics_engine.collision.rayCasting.getTargetedBlockStateId(this.cameraPos, this.direction, -1f, 0f);
 			if (this.data.physics_engine.playerMotion.isOnGround() == true &&
 				this.data.physics_engine.playerMotion.getMoveDistance() > counter) {
 				this.belowBlockId = this.data.worldgenThread.getBlockRegistryId((int)Math.floor(this.position[0]), (int)Math.floor(this.position[1]) - 1, (int)Math.floor(this.position[2]));
 				this.data.soundsManager.playerStepSounds.play();
-				counter += 1.5f;
+				counter += 1.8f;
 			}
 		}
 	}
@@ -81,6 +84,10 @@ public final class Player {
 
 	public int getBelowBlockId() {
 		return belowBlockId;
+	}
+
+	public int getTargetedBlockId() {
+		return targetedBlockId;
 	}
 
 	private void setCameraPos() {

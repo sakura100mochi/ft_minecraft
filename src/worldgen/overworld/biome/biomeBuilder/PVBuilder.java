@@ -13,7 +13,7 @@ public final class PVBuilder implements IBiomeBuilder<PVBuilder.PVLevel> {
 
 	@Override
 	public PVLevel getLevel(double value) throws Exception {
-		if (-1.0 <= value && value < -0.85) {
+		if (value < -0.85) {
 			return PVLevel.Valleys;
 		} else if (-0.85 <= value && value < -0.2) {
 			return PVLevel.Low;
@@ -21,9 +21,8 @@ public final class PVBuilder implements IBiomeBuilder<PVBuilder.PVLevel> {
 			return PVLevel.Mid;
 		} else if (0.2 <= value && value < 0.7) {
 			return PVLevel.High;
-		} else if (0.7 <= value && value <= 1.0) {
+		} else {
 			return PVLevel.Peaks;
 		}
-		throw new Exception("Invalid PV value: " + value);
 	}
 }
