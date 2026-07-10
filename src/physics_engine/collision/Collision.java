@@ -4,13 +4,15 @@ import data.Data;
 import player.Player;
 
 public final class Collision {
-	private final Data	data;
+	private final Data		data;
+	public final RayCasting rayCasting;
 
 	public Collision(Data data) throws Exception {
 		if (data == null || data.worldgenThread == null) {
 			throw new IllegalArgumentException("models.entity.collision.Collision | data or data.worldgenThread is null");
 		}
 		this.data = data;
+		this.rayCasting = new RayCasting(data);
 	}
 
 	public boolean isCollidingPlayer(double x, double y, double z) throws Exception {
