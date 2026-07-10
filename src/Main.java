@@ -36,7 +36,9 @@ public final class Main {
 
 	public static void main(String[] args) {
 		try {
-			long seed = 6L;
+			//long seed = System.currentTimeMillis();
+			long seed = 1781214616965L;
+			System.out.println("Seed: " + seed);
 			data = new Data(seed);
 			init_thread();
 			init();
