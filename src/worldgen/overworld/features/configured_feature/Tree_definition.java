@@ -268,8 +268,8 @@ public final class Tree_definition {
 				int upper_size = minimum_size.optInt("upper_size", 1);
 				for (int height = y; height < y + min_clipped_height; height++) {
 					int size = height >= y + limit ? upper_size : lower_size;
-					for (int offset_x = -size; offset_x <= size; offset_x++) {
-						for (int offset_z = -size; offset_z <= size; offset_z++) {
+					for (int offset_x = -size - 1; offset_x <= size + 1; offset_x++) {
+						for (int offset_z = -size - 1; offset_z <= size + 1; offset_z++) {
 							if (isReplaceable(x + offset_x, y, z + offset_z, ignore_vines) == false) {
 								return false;
 							}
@@ -292,8 +292,8 @@ public final class Tree_definition {
 					} else {
 						size = lower_size;
 					}
-					for (int offset_x = -size; offset_x <= size; offset_x++) {
-						for (int offset_z = -size; offset_z <= size; offset_z++) {
+					for (int offset_x = -size - 1; offset_x <= size + 1; offset_x++) {
+						for (int offset_z = -size - 1; offset_z <= size + 1; offset_z++) {
 							if (isReplaceable(x + offset_x, y, z + offset_z, ignore_vines) == false) {
 								return false;
 							}
