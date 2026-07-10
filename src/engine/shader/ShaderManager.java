@@ -10,6 +10,7 @@ public final class ShaderManager {
 	public final IShader guiShader;
 	public final IShader entityShader;
 	public final IShader rendertype_cloudsShader;
+	public final IShader position_tex_colorShader;
 
 	public ShaderManager(Data data) throws Exception {
 		if (data.parser == null || data.parser.shaders == null) {
@@ -99,6 +100,18 @@ public final class ShaderManager {
 				rendertype_clouds_fsh
 			);
 		}
+
+		String position_tex_color_vsh = data.parser.shaders.getCode("position_tex_color.vsh");
+		String position_tex_color_fsh = data.parser.shaders.getCode("position_tex_color.fsh");
+		if (position_tex_color_vsh == null || position_tex_color_fsh == null) {
+			throw new IllegalArgumentException("engine.shader.ShaderManager | position_tex_color_vsh or position_tex_color_fsh is null");
+		} else {
+			this.position_tex_colorShader = new Position_tex_colorShader(
+				data,
+				position_tex_color_vsh,
+				position_tex_color_fsh
+			);
+		}
 	}
 
 	public void cleanup() {
@@ -109,6 +122,7 @@ public final class ShaderManager {
 		guiShader.cleanup();
 		entityShader.cleanup();
 		rendertype_cloudsShader.cleanup();
+		position_tex_colorShader.cleanup();
 	}
 
 	private String addALPHA_CUTOUT(String src) {

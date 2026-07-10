@@ -82,6 +82,11 @@ public final class Renderer {
 		this.allMeshes.guiMesh.render();
 		this.shaderManager.guiShader.unbind();
 
+		this.shaderManager.position_tex_colorShader.bind();
+		this.shaderManager.position_tex_colorShader.update();
+		this.allMeshes.position_tex_colorMesh.render();
+		this.shaderManager.position_tex_colorShader.unbind();
+
 		this.shaderManager.rendertype_text.bind();
 		this.shaderManager.rendertype_text.update();
 		this.allMeshes.rendertype_textMesh.render();
