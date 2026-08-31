@@ -169,6 +169,27 @@ public final class Tree_definition {
 			case "minecraft:pine_foliage_placer":
 				break;
 			case "minecraft:mega_pine_foliage_placer":
+				int crown_height = Provider.getIntProvider(foliage_placer.get("crown_height"), random);
+				radius = 1;
+				for (int y_pos = y + trunk_height + 3; y_pos >= y + trunk_height - crown_height; y_pos--) {
+					IRandom random_foliage = this.foliage_iPositionalRandom.at(x, y_pos, z);
+					max_radius = random_foliage.nextInt(8) + 1;
+					for (int x_pos = x - radius - 1; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius - 1; z_pos <= z + radius; z_pos++) {
+							if (Calc.EuclideanDistance(x_pos, z_pos, x, z) <= radius && 
+								Calc.EuclideanDistance(x_pos, z_pos, x - 1, z - 1) <= radius) {	
+								random_foliage = this.foliage_iPositionalRandom.at(x_pos, y_pos, z_pos);
+								BlockState foliage = BlockStateProvider.getBlockState(this.data, random_foliage, foliage_provider, x_pos, y_pos, z_pos);
+								int id = Registry.getId(foliage.identifier);
+								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+							}
+						}
+					}
+					radius++;
+					if (radius > max_radius) {
+						radius = 3;
+					}
+				}
 				break;
 			case "minecraft:random_spread_foliage_placer":
 				break;
@@ -213,7 +234,7 @@ public final class Tree_definition {
 			case "minecraft:forking_trunk_placer":
 				break;
 			case "minecraft:giant_trunk_placer":
-				for (int height = 0; height < trunk_height - 1; height++) {
+				for (int height = 0; height < trunk_height; height++) {
 					for (int offset_x = -1; offset_x < 1; offset_x++) {
 						for (int offset_z = -1; offset_z < 1; offset_z++) {
 							IRandom random_trunk = this.trunk_iPositionalRandom.at(x + offset_x, y + height, z + offset_z);
