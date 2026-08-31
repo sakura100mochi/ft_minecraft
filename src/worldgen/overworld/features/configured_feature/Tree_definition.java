@@ -128,11 +128,10 @@ public final class Tree_definition {
 				height = Provider.getIntProvider(foliage_placer.get("height"), random);
 				offset = Provider.getIntProvider(foliage_placer.get("offset"), random);
 				radius = Provider.getIntProvider(foliage_placer.get("radius"), random);
-				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height - offset - height + 1; y_pos--) {
 					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
 						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
-							if ((int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius
-								&& (int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - (height / 2) + 1, z) <= radius) {
+							if ((int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + 1, z) <= radius) {
 								IRandom random_foliage = this.foliage_iPositionalRandom.at(x_pos, y_pos, z_pos);
 								BlockState foliage = BlockStateProvider.getBlockState(this.data, random_foliage, foliage_provider, x_pos, y_pos, z_pos);
 								int id = Registry.getId(foliage.identifier);
@@ -143,6 +142,20 @@ public final class Tree_definition {
 				}
 				break;
 			case "minecraft:jungle_foliage_placer":
+				height = Provider.getIntProvider(foliage_placer.get("height"), random);
+				offset = Provider.getIntProvider(foliage_placer.get("offset"), random);
+				radius = Provider.getIntProvider(foliage_placer.get("radius"), random);
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
+					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
+							IRandom random_foliage = this.foliage_iPositionalRandom.at(x_pos, y_pos, z_pos);
+							BlockState foliage = BlockStateProvider.getBlockState(this.data, random_foliage, foliage_provider, x_pos, y_pos, z_pos);
+							int id = Registry.getId(foliage.identifier);
+							result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+						}
+					}
+					radius++;
+				}
 				break;
 			case "minecraft:spruce_foliage_placer":
 				offset = Provider.getIntProvider(foliage_placer.get("offset"), random);
@@ -167,6 +180,19 @@ public final class Tree_definition {
 				}
 				break;
 			case "minecraft:pine_foliage_placer":
+				offset = Provider.getIntProvider(foliage_placer.get("offset"), random);
+				radius = Provider.getIntProvider(foliage_placer.get("radius"), random);
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset + 1; y_pos--) {
+					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
+							IRandom random_foliage = this.foliage_iPositionalRandom.at(x_pos, y_pos, z_pos);
+							BlockState foliage = BlockStateProvider.getBlockState(this.data, random_foliage, foliage_provider, x_pos, y_pos, z_pos);
+							int id = Registry.getId(foliage.identifier);
+							result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+						}
+					}
+					radius++;
+				}
 				break;
 			case "minecraft:mega_pine_foliage_placer":
 				int crown_height = Provider.getIntProvider(foliage_placer.get("crown_height"), random);
@@ -192,10 +218,60 @@ public final class Tree_definition {
 				}
 				break;
 			case "minecraft:random_spread_foliage_placer":
+				int foliage_height = Provider.getIntProvider(foliage_placer.get("foliage_height"), random);
+				offset = Provider.getIntProvider(foliage_placer.get("offset"), random);
+				radius = Provider.getIntProvider(foliage_placer.get("radius"), random);
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - foliage_height; y_pos--) {
+					IRandom random_foliage = this.foliage_iPositionalRandom.at(x, y_pos, z);
+					max_radius = random_foliage.nextInt(8) + 1;
+					for (int x_pos = x - radius - 1; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius - 1; z_pos <= z + radius; z_pos++) {
+							if (Calc.EuclideanDistance(x_pos, z_pos, x, z) <= radius && 
+								Calc.EuclideanDistance(x_pos, z_pos, x - 1, z - 1) <= radius) {	
+								random_foliage = this.foliage_iPositionalRandom.at(x_pos, y_pos, z_pos);
+								BlockState foliage = BlockStateProvider.getBlockState(this.data, random_foliage, foliage_provider, x_pos, y_pos, z_pos);
+								int id = Registry.getId(foliage.identifier);
+								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+							}
+						}
+					}
+					radius++;
+					if (radius > max_radius) {
+						radius = 3;
+					}
+				}
 				break;
 			case "minecraft:cherry_foliage_placer":
+				height = Provider.getIntProvider(foliage_placer.get("height"), random);
+				offset = Provider.getIntProvider(foliage_placer.get("offset"), random);
+				radius = Provider.getIntProvider(foliage_placer.get("radius"), random);
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset - height + 1; y_pos--) {
+					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
+							if ((int)Calc.EuclideanDistance(x_pos, y_pos, z_pos, x, y + trunk_height + offset - height + 1, z) <= radius) {
+								IRandom random_foliage = this.foliage_iPositionalRandom.at(x_pos, y_pos, z_pos);
+								BlockState foliage = BlockStateProvider.getBlockState(this.data, random_foliage, foliage_provider, x_pos, y_pos, z_pos);
+								int id = Registry.getId(foliage.identifier);
+								result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+							}
+						}
+					}
+				}
 				break;
 			case "minecraft:acacia_foliage_placer":
+				offset = Provider.getIntProvider(foliage_placer.get("offset"), random);
+				radius = Provider.getIntProvider(foliage_placer.get("radius"), random);
+				for (int y_pos = y + trunk_height + offset; y_pos >= y + trunk_height + offset + 1; y_pos--) {
+					for (int x_pos = x - radius; x_pos <= x + radius; x_pos++) {
+						for (int z_pos = z - radius; z_pos <= z + radius; z_pos++) {
+							IRandom random_foliage = this.foliage_iPositionalRandom.at(x_pos, y_pos, z_pos);
+							BlockState foliage = BlockStateProvider.getBlockState(this.data, random_foliage, foliage_provider, x_pos, y_pos, z_pos);
+							int id = Registry.getId(foliage.identifier);
+							result.add(new Configured_featureInfo(x_pos, y_pos, z_pos, id, true));
+						}
+					}
+					radius++;
+				}
 				break;
 			case "minecraft:dark_oak_foliage_placer":
 				height = 4;
@@ -232,6 +308,12 @@ public final class Tree_definition {
 				}
 				break;
 			case "minecraft:forking_trunk_placer":
+				for (int height = 0; height < trunk_height; height++) {
+					IRandom random_trunk = this.trunk_iPositionalRandom.at(x, y + height, z);
+					BlockState trunk = BlockStateProvider.getBlockState(this.data, random_trunk, trunk_provider, x, y + height, z);
+					int id = Registry.getId(trunk.identifier);
+					result.add(new Configured_featureInfo(x, y + height, z, id, false));
+				}
 				break;
 			case "minecraft:giant_trunk_placer":
 				for (int height = 0; height < trunk_height; height++) {
@@ -250,6 +332,20 @@ public final class Tree_definition {
 				result.add(new Configured_featureInfo(x, y + trunk_height, z, id, false));
 				break;
 			case "minecraft:mega_jungle_trunk_placer":
+				for (int height = 0; height < trunk_height; height++) {
+					for (int offset_x = -1; offset_x < 1; offset_x++) {
+						for (int offset_z = -1; offset_z < 1; offset_z++) {
+							random_trunk = this.trunk_iPositionalRandom.at(x + offset_x, y + height, z + offset_z);
+							trunk = BlockStateProvider.getBlockState(this.data, random_trunk, trunk_provider, x + offset_x, y + height, z + offset_z);
+							id = Registry.getId(trunk.identifier);
+							result.add(new Configured_featureInfo(x + offset_x, y + height, z + offset_z, id, false));
+						}
+					}
+				}
+				random_trunk = this.trunk_iPositionalRandom.at(x, y + trunk_height, z);
+				trunk = BlockStateProvider.getBlockState(this.data, random_trunk, trunk_provider, x, y + trunk_height, z);
+				id = Registry.getId(trunk.identifier);
+				result.add(new Configured_featureInfo(x, y + trunk_height, z, id, false));
 				break;
 			case "minecraft:dark_oak_trunk_placer":
 				for (int height = 0; height < trunk_height - 1; height++) {
@@ -264,12 +360,36 @@ public final class Tree_definition {
 				}
 				break;
 			case "minecraft:fancy_trunk_placer":
+				for (int height = 0; height < trunk_height; height++) {
+					random_trunk = this.trunk_iPositionalRandom.at(x, y + height, z);
+					trunk = BlockStateProvider.getBlockState(this.data, random_trunk, trunk_provider, x, y + height, z);
+					id = Registry.getId(trunk.identifier);
+					result.add(new Configured_featureInfo(x, y + height, z, id, false));
+				}
 				break;
 			case "minecraft:bending_trunk_placer":
+				for (int height = 0; height < trunk_height; height++) {
+					random_trunk = this.trunk_iPositionalRandom.at(x, y + height, z);
+					trunk = BlockStateProvider.getBlockState(this.data, random_trunk, trunk_provider, x, y + height, z);
+					id = Registry.getId(trunk.identifier);
+					result.add(new Configured_featureInfo(x, y + height, z, id, false));
+				}
 				break;
 			case "minecraft:upwards_branching_trunk_placer":
+				for (int height = 0; height < trunk_height; height++) {
+					random_trunk = this.trunk_iPositionalRandom.at(x, y + height, z);
+					trunk = BlockStateProvider.getBlockState(this.data, random_trunk, trunk_provider, x, y + height, z);
+					id = Registry.getId(trunk.identifier);
+					result.add(new Configured_featureInfo(x, y + height, z, id, false));
+				}
 				break;
 			case "minecraft:cherry_trunk_placer":
+				for (int height = 0; height < trunk_height; height++) {
+					random_trunk = this.trunk_iPositionalRandom.at(x, y + height, z);
+					trunk = BlockStateProvider.getBlockState(this.data, random_trunk, trunk_provider, x, y + height, z);
+					id = Registry.getId(trunk.identifier);
+					result.add(new Configured_featureInfo(x, y + height, z, id, false));
+				}
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid trunk_placer type");
