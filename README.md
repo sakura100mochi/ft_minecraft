@@ -1,10 +1,10 @@
 # ft_minecraft
-## How to srart
+## How to start
 1. Download library
 ```
 make download
 ```
-2. Lunch Game
+2. Launch the Game
 
 for linux/arm32:
 ```
@@ -54,22 +54,22 @@ make windows_x86
 ## How to play
 ### *Key Bind*
 
-**ESCAPE** exit the game
+**ESCAPE (ESC)** exit the game
 
-**W** move forward
+**W** Move forward
 
-**A** left
+**A** Move left
 
-**S** move backward
+**S** Move backward
 
-**D** right
+**D** Move right
 
-**SPACE** jump
+**SPACE** Jump
 
-**SHIFT** sneeze
+**Q** Sprint(hold)
 
-**Q** sprint(holding)
+**F1** Take a screenshot
 
-**F3** change game mode
+**F3** Change game mode
 
-**F5** change perspective
+**F5** Change perspective
