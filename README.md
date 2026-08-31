@@ -66,6 +66,8 @@ make windows_x86
 
 **SPACE** Jump
 
+**SHIFT** Move Down
+
 **Q** Sprint(hold)
 
 **F1** Take a screenshot
